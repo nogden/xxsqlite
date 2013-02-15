@@ -22,10 +22,28 @@
 #define SQLITE_STATEMENT_H
 
 #include <ostream>
+#include <stdexcept>
+#include <cstdint>
 
 struct sqlite3_stmt;
 
 namespace sqlite {
+
+class blob;
+
+class unknown_parameter: public std::runtime_error {
+public:
+    unknown_parameter(std::string const &msg): std::runtime_error(msg) {}
+};
+
+class bind_failed: public std::runtime_error {
+public:
+    bind_failed(std::string const &msg): std::runtime_error(msg) {}
+};
+
+enum class null_value {
+    null
+};
 
 class statement
 {
@@ -38,7 +56,13 @@ public:
     statement & operator=(statement &&other);
     statement & operator=(statement const &other) = delete;
 
-
+    void bind(std::string const &parameter, sqlite::blob const &value);
+    void bind(std::string const &parameter, double value);
+    void bind(std::string const &parameter, int value);
+    void bind(std::string const &parameter, int64_t value);
+    void bind(std::string const &parameter, sqlite::null_value value);
+    void bind(std::string const &parameter, std::string const &value);
+    void bind(std::string const &parameter, std::wstring const &value);
 
     friend std::ostream& operator<<(
         std::ostream &os, statement const &statement
