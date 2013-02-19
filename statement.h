@@ -31,14 +31,9 @@ namespace sqlite {
 
 class blob;
 
-class unknown_parameter: public std::runtime_error {
+class database_error: public std::runtime_error {
 public:
-    unknown_parameter(std::string const &msg): std::runtime_error(msg) {}
-};
-
-class bind_failed: public std::runtime_error {
-public:
-    bind_failed(std::string const &msg): std::runtime_error(msg) {}
+    database_error(std::string const &msg): std::runtime_error(msg) {}
 };
 
 enum class null_value {

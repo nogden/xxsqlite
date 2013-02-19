@@ -38,7 +38,7 @@ void database::open(access_mode const &mode) {
     if (sqlite3_open_v2(path.c_str(), &db, mode, nullptr) != SQLITE_OK) {
         std::stringstream ss;
         ss << sqlite3_errmsg(db)
-           << "\n" "while opening database: " << path << "\n";
+           << "\n" "while opening database: " << path;
         throw database_error(ss.str());
     }
 }
@@ -52,6 +52,22 @@ void database::close() {
         status == SQLITE_OK &&
         "database closed with active statements or unfinished backups"
     );
+}
+
+statement database::make_statement(std::string const &statement) {
+    assert(db && "make_statement() called on closed database");
+    sqlite3_stmt *stmt(nullptr);
+    auto status(sqlite3_prepare_v2(
+        db, statement.c_str(), statement.size(), &stmt, nullptr
+    ));
+    if (status != SQLITE_OK) {
+        sqlite3_finalize(stmt);
+        std::stringstream ss;
+        ss << sqlite3_errstr(status)
+           << "\n" "while preparing statement '" << statement << "'";
+        throw database_error(ss.str());
+    }
+    return stmt;
 }
 
 std::ostream& operator<<(std::ostream &os, database const &db) {

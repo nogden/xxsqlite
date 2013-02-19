@@ -41,11 +41,6 @@ enum access_mode {
     read_write_create = 0x06
 };
 
-class database_error: public std::runtime_error {
-public:
-    database_error(std::string const &msg): std::runtime_error(msg) {}
-};
-
 class database {
 public:
     database(std::string const &path);
