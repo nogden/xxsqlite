@@ -12,5 +12,9 @@ add_library(sqlite STATIC
 )
 
 target_link_libraries(sqlite
-    libsqlite3
+    sqlite3
 )
+
+if(BUILD_UNIT_TESTS)
+    add_subdirectory("tests")
+endif()

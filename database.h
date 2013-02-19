@@ -32,10 +32,13 @@ struct sqlite3;
 
 namespace sqlite {
 
+static char const *temporary = "";
+static char const *in_memory = ":memory:";
+
 enum access_mode {
-    read_only,
-    read_write,
-    read_write_create
+    read_only         = 0x01,
+    read_write        = 0x02,
+    read_write_create = 0x06
 };
 
 class database_error: public std::runtime_error {
@@ -56,7 +59,7 @@ public:
     friend std::ostream& operator<<(std::ostream &stream, database const &db);
 
 private:
-    sqlite3 **db = nullptr;
+    sqlite3 *db = nullptr;
     std::string path;
 };
 

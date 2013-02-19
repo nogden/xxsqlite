@@ -27,17 +27,6 @@
 
 namespace sqlite {
 
-static decltype(SQLITE_OPEN_READONLY) toSqliteMode(
-        access_mode const &mode
-) {
-    switch (mode) {
-    case read_only:         return SQLITE_OPEN_READONLY;
-    case read_write:        return SQLITE_OPEN_READWRITE;
-    case read_write_create: return SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-    default:                assert(false && "unknown access mode");
-    }
-}
-
 database::database(std::string const &path): path(path) {}
 
 database::~database() {
@@ -46,10 +35,9 @@ database::~database() {
 
 void database::open(access_mode const &mode) {
     if (db) return;
-    int status(sqlite3_open_v2(path.c_str(), db, mode, nullptr));
-    if (status != SQLITE_OK) {
+    if (sqlite3_open_v2(path.c_str(), &db, mode, nullptr) != SQLITE_OK) {
         std::stringstream ss;
-        ss << sqlite3_errmsg(*db)
+        ss << sqlite3_errmsg(db)
            << "\n" "while opening database: " << path << "\n";
         throw database_error(ss.str());
     }
@@ -57,7 +45,7 @@ void database::open(access_mode const &mode) {
 
 void database::close() {
     if (! db) return;
-    auto status(sqlite3_close(*db));
+    auto status(sqlite3_close(db));
     db = nullptr;
     // Can't throw, called from destructor
     assert(
