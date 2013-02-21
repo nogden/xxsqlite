@@ -19,6 +19,7 @@
 */
 
 #include "sqlite/database.h"
+#include "sqlite/statement.h"
 
 #include <gtest/gtest.h>
 
@@ -39,4 +40,32 @@ TEST(database, ignores_request_to_close_when_already_closed) {
         db.close();
         db.close();
     });
+}
+
+TEST(database, can_make_prepared_statement) {
+    sqlite::database db(sqlite::in_memory);
+    db.open(sqlite::read_write_create);
+    EXPECT_NO_THROW({
+        sqlite::statement stmt(db.make_statement(
+            "CREATE TABLE test (id INTEGER PRIMARY KEY AUTOINCREMENT);"
+        ));
+    });
+}
+
+TEST(database, throws_exception_on_invalid_statement) {
+    sqlite::database db(sqlite::in_memory);
+    db.open(sqlite::read_write_create);
+    EXPECT_THROW(
+        sqlite::statement stmt(db.make_statement("INVALID STATEMENT")),
+        sqlite::database_error
+    );
+}
+
+TEST(database, triggers_assert_on_attempt_to_access_closed_database) {
+    sqlite::database db(sqlite::in_memory);
+    EXPECT_DEATH({
+        sqlite::statement stmt(db.make_statement(
+            "CREATE TABLE test (id INTEGER PRIMARY KEY AUTOINCREMENT);"
+        ));
+    }, "");
 }
