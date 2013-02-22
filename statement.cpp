@@ -22,6 +22,7 @@
 
 #include <sqlite3.h>
 
+#include <ostream>
 #include <sstream>
 #include <cassert>
 
@@ -89,24 +90,29 @@ void statement::bind(std::string const &parameter, null_value value) {
     throw_on_error(sqlite3_bind_null(stmt, index), parameter);
 }
 
-void statement::bind(std::string const &parameter, std::string const &value) {
+void statement::bind(
+        std::string const &parameter,
+        std::string const &value,
+        utf_encoding const &encoding
+) {
     int index(find_parameter_index(stmt, parameter));
-    throw_on_error(
-        sqlite3_bind_text(
-            stmt, index, value.c_str(), value.size(), SQLITE_STATIC
-        ),
-        parameter
-    );
-}
+    switch (encoding) {
+    case utf_encoding::utf8: throw_on_error(
+            sqlite3_bind_text(
+                stmt, index, value.c_str(), value.size(), SQLITE_STATIC
+            ), parameter
+        );
+        break;
+    case utf_encoding::utf16: throw_on_error(
+            sqlite3_bind_text(
+                stmt, index, value.c_str(), value.size(), SQLITE_STATIC
+            ), parameter
+        );
+        break;
+    default:
+        assert(false && "unsupported encoding type");
+    }
 
-void statement::bind(std::string const &parameter, std::wstring const &value) {
-    int index(find_parameter_index(stmt, parameter));
-    throw_on_error(
-        sqlite3_bind_text16(
-            stmt, index, value.c_str(), value.size(), SQLITE_STATIC
-        ),
-        parameter
-    );
 }
 
 std::ostream & operator<<(std::ostream &os, statement const &statement) {

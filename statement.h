@@ -21,7 +21,6 @@
 #ifndef SQLITE_STATEMENT_H
 #define SQLITE_STATEMENT_H
 
-#include <ostream>
 #include <stdexcept>
 #include <cstdint>
 
@@ -40,6 +39,11 @@ enum class null_value {
     null
 };
 
+enum class utf_encoding {
+    utf8,
+    utf16
+};
+
 class statement
 {
 public:
@@ -56,8 +60,11 @@ public:
     void bind(std::string const &parameter, int value);
     void bind(std::string const &parameter, int64_t value);
     void bind(std::string const &parameter, sqlite::null_value value);
-    void bind(std::string const &parameter, std::string const &value);
-    void bind(std::string const &parameter, std::wstring const &value);
+    void bind(
+            std::string const &parameter,
+            std::string const &value,
+            utf_encoding const &encoding = utf_encoding::utf8
+    );
 
     friend std::ostream& operator<<(
         std::ostream &os, statement const &statement
