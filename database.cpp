@@ -22,6 +22,7 @@
 
 #include <sqlite3.h>
 
+#include <ostream>
 #include <sstream>
 #include <cassert>
 
@@ -29,8 +30,21 @@ namespace sqlite {
 
 database::database(std::string const &path): path(path) {}
 
+database::database(database &&other) {
+    assert(&other !=  this && "attempt to move database to itself");
+    std::swap(db, other.db);
+    std::swap(path, other.path);
+}
+
 database::~database() {
     close();
+}
+
+database &database::operator=(database &&other) {
+    assert(&other != this && "attempt to assign database to itself");
+    std::swap(db, other.db);
+    std::swap(path, other.path);
+    return *this;
 }
 
 void database::open(access_mode const &mode) {
@@ -54,20 +68,20 @@ void database::close() {
     );
 }
 
-statement database::make_statement(std::string const &statement) {
+std::unique_ptr<statement> database::make_statement(std::string const &sql) {
     assert(db && "make_statement() called on closed database");
     sqlite3_stmt *stmt(nullptr);
     auto status(sqlite3_prepare_v2(
-        db, statement.c_str(), statement.size(), &stmt, nullptr
+        db, sql.c_str(), sql.size(), &stmt, nullptr
     ));
     if (status != SQLITE_OK) {
         sqlite3_finalize(stmt);
         std::stringstream ss;
         ss << sqlite3_errstr(status)
-           << "\n" "while preparing statement '" << statement << "'";
+           << "\n" "while preparing statement '" << sql << "'";
         throw database_error(ss.str());
     }
-    return stmt;
+    return std::make_unique<statement>(stmt);
 }
 
 std::ostream& operator<<(std::ostream &os, database const &db) {

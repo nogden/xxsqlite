@@ -33,6 +33,20 @@ TEST(database, ignores_request_to_open_when_already_open) {
     });
 }
 
+TEST(database, cannot_be_move_constructed_from_self) {
+    sqlite::database db(sqlite::in_memory);
+    EXPECT_DEATH({
+        sqlite::database db(std::move(db));
+    }, "");
+}
+
+TEST(database, cannot_be_move_assigned_to_self) {
+    sqlite::database db(sqlite::in_memory);
+    EXPECT_DEATH({
+        sqlite::database db = std::move(db);
+    }, "");
+}
+
 TEST(database, ignores_request_to_close_when_already_closed) {
     sqlite::database db(sqlite::in_memory);
     EXPECT_NO_THROW({
@@ -46,7 +60,7 @@ TEST(database, can_make_prepared_statement) {
     sqlite::database db(sqlite::in_memory);
     db.open(sqlite::read_write_create);
     EXPECT_NO_THROW({
-        sqlite::statement stmt(db.make_statement(
+        auto stmt(db.make_statement(
             "CREATE TABLE test (id INTEGER PRIMARY KEY AUTOINCREMENT);"
         ));
     });
@@ -56,7 +70,7 @@ TEST(database, throws_exception_on_invalid_statement) {
     sqlite::database db(sqlite::in_memory);
     db.open(sqlite::read_write_create);
     EXPECT_THROW(
-        sqlite::statement stmt(db.make_statement("INVALID STATEMENT")),
+        auto stmt(db.make_statement("INVALID STATEMENT")),
         sqlite::database_error
     );
 }
@@ -64,7 +78,7 @@ TEST(database, throws_exception_on_invalid_statement) {
 TEST(database, triggers_assert_on_attempt_to_access_closed_database) {
     sqlite::database db(sqlite::in_memory);
     EXPECT_DEATH({
-        sqlite::statement stmt(db.make_statement(
+        auto stmt(db.make_statement(
             "CREATE TABLE test (id INTEGER PRIMARY KEY AUTOINCREMENT);"
         ));
     }, "");

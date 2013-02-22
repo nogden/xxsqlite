@@ -23,10 +23,8 @@
 
 #include "statement.h"
 
+#include "mem/memory.h"
 #include <string>
-#include <vector>
-#include <ostream>
-#include <stdexcept>
 
 struct sqlite3;
 
@@ -44,12 +42,19 @@ enum access_mode {
 class database {
 public:
     database(std::string const &path);
+    database(database const &other) = delete;
+    database(database &&other);
     ~database();
+
+    database & operator=(database const &other) = delete;
+    database & operator=(database &&other);
 
     void open(access_mode const &mode);
     void close();
 
-    statement make_statement(std::string const &statement);
+    //result_map execute(std::string)
+
+    std::unique_ptr<statement> make_statement(std::string const &sql);
 
     friend std::ostream& operator<<(std::ostream &stream, database const &db);
 
