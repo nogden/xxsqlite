@@ -23,7 +23,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(database, can_make_prepared_statement) {
+TEST(database, returns_prepared_statement_when_given_valid_sql) {
     auto db(sqlite::make_database(
         sqlite::in_memory, sqlite::read_write_create
     ));
@@ -34,7 +34,7 @@ TEST(database, can_make_prepared_statement) {
     });
 }
 
-TEST(database, throws_exception_when_making_invalid_statement) {
+TEST(database, throws_exception_when_given_invalid_sql) {
     auto db(sqlite::make_database(
         sqlite::in_memory, sqlite::read_write_create
     ));
