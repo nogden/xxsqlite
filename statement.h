@@ -32,16 +32,11 @@ class blob;
 
 class database_error: public std::runtime_error {
 public:
-    database_error(std::string const &msg): std::runtime_error(msg) {}
+    database_error(const std::string &msg): std::runtime_error(msg) {}
 };
 
 enum class null_value {
     null
-};
-
-enum class utf_encoding {
-    utf8,
-    utf16
 };
 
 class statement
@@ -50,24 +45,20 @@ public:
     statement(sqlite3_stmt *statement);
     ~statement();
     statement(statement &&other);
-    statement(statement const &other) = delete;
+    statement(const statement &other) = delete;
 
     statement & operator=(statement &&other);
-    statement & operator=(statement const &other) = delete;
+    statement & operator=(const statement &other) = delete;
 
-    void bind(std::string const &parameter, sqlite::blob const &value);
-    void bind(std::string const &parameter, double value);
-    void bind(std::string const &parameter, int value);
-    void bind(std::string const &parameter, int64_t value);
-    void bind(std::string const &parameter, sqlite::null_value value);
-    void bind(
-            std::string const &parameter,
-            std::string const &value,
-            utf_encoding const &encoding = utf_encoding::utf8
-    );
+    void bind(const std::string &parameter, const sqlite::blob &value);
+    void bind(const std::string &parameter, double value);
+    void bind(const std::string &parameter, int value);
+    void bind(const std::string &parameter, int64_t value);
+    void bind(const std::string &parameter, sqlite::null_value value);
+    void bind(const std::string &parameter, const std::string &value);
 
     friend std::ostream& operator<<(
-        std::ostream &os, statement const &statement
+        std::ostream &os, const statement &statement
     );
 
 private:

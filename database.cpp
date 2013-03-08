@@ -28,38 +28,27 @@
 
 namespace sqlite {
 
-database::database(std::string const &path): path(path) {}
+database::database(sqlite3 *connection): db(connection) {
+    assert(connection && "attempt to create database with null connection");
+}
 
 database::database(database &&other) {
     assert(&other !=  this && "attempt to move database to itself");
     std::swap(db, other.db);
-    std::swap(path, other.path);
 }
 
 database::~database() {
     close();
 }
 
-database &database::operator=(database &&other) {
+database & database::operator=(database &&other) {
     assert(&other != this && "attempt to assign database to itself");
     std::swap(db, other.db);
-    std::swap(path, other.path);
     return *this;
 }
 
-void database::open(access_mode const &mode) {
-    if (db) return;
-    if (sqlite3_open_v2(path.c_str(), &db, mode, nullptr) != SQLITE_OK) {
-        std::stringstream ss;
-        ss << sqlite3_errmsg(db)
-           << "\n" "while opening database: " << path;
-        throw database_error(ss.str());
-    }
-}
-
 void database::close() {
-    if (! db) return;
-    auto status(sqlite3_close(db));
+    const auto status(sqlite3_close(db));
     db = nullptr;
     // Can't throw, called from destructor
     assert(
@@ -68,10 +57,10 @@ void database::close() {
     );
 }
 
-std::unique_ptr<statement> database::make_statement(std::string const &sql) {
+std::unique_ptr<statement> database::make_statement(const std::string &sql) {
     assert(db && "make_statement() called on closed database");
     sqlite3_stmt *stmt(nullptr);
-    auto status(sqlite3_prepare_v2(
+    const auto status(sqlite3_prepare_v2(
         db, sql.c_str(), sql.size(), &stmt, nullptr
     ));
     if (status != SQLITE_OK) {
@@ -84,9 +73,23 @@ std::unique_ptr<statement> database::make_statement(std::string const &sql) {
     return std::make_unique<statement>(stmt);
 }
 
-std::ostream& operator<<(std::ostream &os, database const &db) {
+std::unique_ptr<database> make_database(
+        const std::string &path,
+        const access_mode &permissions
+) {
+    sqlite3 *db;
+    if (sqlite3_open_v2(path.c_str(), &db, permissions, nullptr) != SQLITE_OK) {
+        sqlite3_close_v2(db);
+        std::stringstream ss;
+        ss << sqlite3_errmsg(db)
+           << "\n" "while opening database: " << path;
+        throw database_error(ss.str());
+    }
+    return std::make_unique<database>(db);
+}
+
+std::ostream& operator<<(std::ostream &os, const database &db) {
     os << "database:\n"
-          "  path: " << db.path << "\n"
           "  open: " << ((db.db == nullptr) ? "false" : "true") << "\n";
     return os;
 }

@@ -41,27 +41,31 @@ enum access_mode {
 
 class database {
 public:
-    database(std::string const &path);
-    database(database const &other) = delete;
+    database(sqlite3 *connection);
+    database(const database &other) = delete;
     database(database &&other);
     ~database();
 
-    database & operator=(database const &other) = delete;
+    database & operator=(const database &other) = delete;
     database & operator=(database &&other);
-
-    void open(access_mode const &mode);
-    void close();
 
     //result_map execute(std::string)
 
-    std::unique_ptr<statement> make_statement(std::string const &sql);
+    std::unique_ptr<statement> make_statement(const std::string &sql);
 
-    friend std::ostream& operator<<(std::ostream &stream, database const &db);
+    friend std::ostream& operator<<(std::ostream &stream, const database &db);
+
+private:
+    void close();
 
 private:
     sqlite3 *db = nullptr;
-    std::string path;
 };
+
+std::unique_ptr<database> make_database(
+        const std::string &path,
+        const access_mode &permissions
+);
 
 } // namespace sqlite
 
