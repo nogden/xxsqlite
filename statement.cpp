@@ -50,7 +50,7 @@ void throw_on_error(const int status, const std::string &parameter) {
 }
 
 statement::statement(sqlite3_stmt *statement): stmt(statement) {
-    assert(stmt && "attempt to create statement with null sqlite3_stmt");
+    assert(statement && "attempt to create statement with null sqlite3_stmt");
 }
 
 statement::statement(statement &&other) {
@@ -72,22 +72,22 @@ void statement::bind(const std::string &parameter, const blob &value) {
     assert(false && "blob support not implemented");
 }
 
-void statement::bind(const std::string &parameter, const double value) {
+void statement::bind(const std::string &parameter, const double &value) {
     const int index(find_parameter_index(stmt, parameter));
     throw_on_error(sqlite3_bind_double(stmt, index, value), parameter);
 }
 
-void statement::bind(const std::string &parameter, const int value) {
+void statement::bind(const std::string &parameter, const int &value) {
     const int index(find_parameter_index(stmt, parameter));
     throw_on_error(sqlite3_bind_int(stmt, index, value), parameter);
 }
 
-void statement::bind(const std::string &parameter, const int64_t value) {
+void statement::bind(const std::string &parameter, const int64_t &value) {
     const int index(find_parameter_index(stmt, parameter));
     throw_on_error(sqlite3_bind_int64(stmt, index, value), parameter);
 }
 
-void statement::bind(const std::string &parameter, const null_value value) {
+void statement::bind(const std::string &parameter, const null_value &value) {
     const int index(find_parameter_index(stmt, parameter));
     throw_on_error(sqlite3_bind_null(stmt, index), parameter);
 }
@@ -101,7 +101,8 @@ void statement::bind(const std::string &parameter, const std::string &value) {
 }
 
 std::ostream & operator<<(std::ostream &os, const statement &statement) {
-    os << "statement: (display not implemented)\n";
+    os << "statement:\n"
+          "  sql: " << sqlite3_sql(statement.stmt) << "\n";
     return os;
 }
 

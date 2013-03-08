@@ -51,10 +51,10 @@ public:
     statement & operator=(const statement &other) = delete;
 
     void bind(const std::string &parameter, const sqlite::blob &value);
-    void bind(const std::string &parameter, double value);
-    void bind(const std::string &parameter, int value);
-    void bind(const std::string &parameter, int64_t value);
-    void bind(const std::string &parameter, sqlite::null_value value);
+    void bind(const std::string &parameter, const double &value);
+    void bind(const std::string &parameter, const int &value);
+    void bind(const std::string &parameter, const int64_t &value);
+    void bind(const std::string &parameter, const null_value &value);
     void bind(const std::string &parameter, const std::string &value);
 
     friend std::ostream& operator<<(
