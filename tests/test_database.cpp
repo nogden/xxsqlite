@@ -53,15 +53,26 @@ TEST_F(database, asserts_when_created_with_null_pointer) {
     );
 }
 
+TEST_F(database, executes_valid_sql_sucessfully) {
+    EXPECT_NO_THROW({
+        (void) db->execute("CREATE TABLE test (id INTEGER PRIMARY KEY);");
+        (void) db->execute("SELECT * FROM test;");
+    });
+}
+
+TEST_F(database, throws_database_error_when_executing_invalid_sql) {
+    EXPECT_THROW(db->execute("INVALID STATEMENT"), sqlite::database_error);
+}
+
 TEST_F(database, returns_prepared_statement_when_given_valid_sql) {
     EXPECT_NO_THROW(
         auto statement(db->make_statement(
-            "CREATE TABLE test (id INTEGER PRIMARY KEY AUTOINCREMENT);"
+            "CREATE TABLE test (id INTEGER PRIMARY KEY);"
         ));
     );
 }
 
-TEST_F(database, throws_exception_when_given_invalid_sql) {
+TEST_F(database, throws_database_error_when_given_invalid_sql) {
     EXPECT_THROW(
         db->make_statement("INVALID STATEMENT"),
         sqlite::database_error
