@@ -30,11 +30,27 @@ class statement: public testing::Test {
 protected:
     void SetUp() {
         db = sqlite::make_database(sqlite::in_memory, sqlite::read_write_create);
-        db->execute("CREATE TABLE test (id INTEGER PRIMARY KEY AUTOINCREMENT);");
+        db->execute(
+            "CREATE TABLE test("
+            "    id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "    name TEXT"
+            ");"
+        );
+        db->execute("INSERT INTO test (id, name) VALUES (1, 'test');");
     }
 
     std::unique_ptr<sqlite::database> db;
 };
+
+TEST_F(statement, can_be_move_constructed) {
+    auto from(db->make_statement("SELECT * FROM test;"));
+    EXPECT_NO_THROW(sqlite::statement to(std::move(*from.release())));
+}
+
+TEST_F(statement, can_be_move_assigned) {
+    auto from(db->make_statement("SELECT * FROM test;"));
+    EXPECT_NO_THROW(sqlite::statement to = std::move(*from.release()));
+}
 
 TEST_F(statement, binds_any_parameter_when_name_is_present_in_sql_string) {
     auto statement(db->make_statement("SELECT * FROM test WHERE id = @param;"));
@@ -45,7 +61,7 @@ TEST_F(statement, binds_any_parameter_when_name_is_present_in_sql_string) {
     EXPECT_NO_THROW(statement->bind("@param", "string"));
 }
 
-TEST_F(statement, throws_exception_when_binding_to_non_existant_parameter) {
+TEST_F(statement, throws_database_error_when_binding_to_absent_parameter) {
     auto statement(db->make_statement("SELECT * FROM test;"));
     EXPECT_THROW(
         statement->bind("@param", static_cast<double>(0.0)),
@@ -67,4 +83,13 @@ TEST_F(statement, throws_exception_when_binding_to_non_existant_parameter) {
         statement->bind("@param", "string"),
         sqlite::database_error
     );
+}
+
+TEST_F(statement, can_count_its_parameters) {
+    auto statement(db->make_statement("SELECT * FROM test WHERE id = @id;"));
+    EXPECT_EQ(1, statement->parameter_count());
+    statement = db->make_statement(
+        "SELECT * FROM test WHERE id = @id AND name = @name;"
+    );
+    EXPECT_EQ(2, statement->parameter_count());
 }

@@ -40,12 +40,13 @@ class statement
 {
 public:
     statement(sqlite3_stmt *statement);
-    ~statement();
-    statement(statement &&other);
     statement(const statement &other) = delete;
+    statement(statement &&other) = default;
+    ~statement();
 
-    statement & operator=(statement &&other);
     statement & operator=(const statement &other) = delete;
+    statement & operator=(statement &&other) = default;
+
 
     void bind(const std::string &parameter, const sqlite::blob &value);
     void bind(const std::string &parameter, const double &value);
@@ -57,6 +58,8 @@ public:
     void clear_bindings();
 
     result_map execute();
+
+    std::size_t parameter_count() const;
 
     friend std::ostream& operator<<(
         std::ostream &os, const statement &statement

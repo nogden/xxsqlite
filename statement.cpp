@@ -53,19 +53,8 @@ statement::statement(sqlite3_stmt *statement): stmt(statement) {
     assert(statement && "attempt to create statement with null sqlite3_stmt");
 }
 
-statement::statement(statement &&other) {
-    assert(&other != this && "move into same object");
-    std::swap(stmt, other.stmt);
-}
-
 statement::~statement() {
     (void) sqlite3_finalize(stmt);
-}
-
-statement& statement::operator=(statement &&other) {
-    assert(&other != this && "assignment to same object");
-    std::swap(stmt, other.stmt);
-    return *this;
 }
 
 void statement::bind(const std::string &parameter, const blob &value) {
@@ -114,6 +103,10 @@ result_map statement::execute() {
     assert(stmt && "execute() called with null sqlite3_stmt");
     (void) sqlite3_reset(stmt);
     return result_map(stmt, ownership::none);
+}
+
+std::size_t statement::parameter_count() const {
+    return sqlite3_bind_parameter_count(stmt);
 }
 
 std::ostream & operator<<(std::ostream &os, const statement &statement) {
