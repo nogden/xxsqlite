@@ -21,7 +21,8 @@
 #ifndef SQLITE_STATEMENT_H
 #define SQLITE_STATEMENT_H
 
-#include <stdexcept>
+#include "result_map.h"
+
 #include <cstdint>
 
 struct sqlite3_stmt;
@@ -30,14 +31,10 @@ namespace sqlite {
 
 class blob;
 
-class database_error: public std::runtime_error {
-public:
-    database_error(const std::string &msg): std::runtime_error(msg) {}
-};
-
-enum class null_value {
+enum class null_t {
     null
 };
+static const null_t null = null_t::null;
 
 class statement
 {
@@ -54,8 +51,12 @@ public:
     void bind(const std::string &parameter, const double &value);
     void bind(const std::string &parameter, const int &value);
     void bind(const std::string &parameter, const int64_t &value);
-    void bind(const std::string &parameter, const null_value &value);
+    void bind(const std::string &parameter, const null_t &value);
     void bind(const std::string &parameter, const std::string &value);
+
+    void clear_bindings();
+
+    result_map execute();
 
     friend std::ostream& operator<<(
         std::ostream &os, const statement &statement

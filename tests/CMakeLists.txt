@@ -7,5 +7,17 @@ target_link_libraries(test_database
     gtest_main
 )
 add_test(test_database
-    COMMAND test_database
+    test_database
+)
+
+add_executable(test_statement
+    test_statement.cpp
+)
+target_link_libraries(test_statement
+    sqlite
+    gtest
+    gtest_main
+)
+add_test(test_statement
+    test_statement
 )

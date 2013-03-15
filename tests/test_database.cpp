@@ -23,21 +23,45 @@
 
 #include <gtest/gtest.h>
 
-TEST(database, returns_prepared_statement_when_given_valid_sql) {
-    auto db(sqlite::make_database(
-        sqlite::in_memory, sqlite::read_write_create
-    ));
-    EXPECT_NO_THROW({
+#include "mem/memory.h"
+
+class database: public testing::Test {
+protected:
+    void SetUp() {
+        db = sqlite::make_database(sqlite::in_memory, sqlite::read_write_create);
+    }
+
+    std::unique_ptr<sqlite::database> db;
+};
+
+TEST_F(database, can_be_move_constructed) {
+    EXPECT_NO_THROW(
+        sqlite::database database(std::move(*db.release()))
+    );
+}
+
+TEST_F(database, can_be_move_assigned) {
+    EXPECT_NO_THROW(
+        sqlite::database database = std::move(*db.release())
+    );
+}
+
+TEST_F(database, asserts_when_created_with_null_pointer) {
+    EXPECT_DEATH(
+        sqlite::database database(nullptr),
+        ""
+    );
+}
+
+TEST_F(database, returns_prepared_statement_when_given_valid_sql) {
+    EXPECT_NO_THROW(
         auto statement(db->make_statement(
             "CREATE TABLE test (id INTEGER PRIMARY KEY AUTOINCREMENT);"
         ));
-    });
+    );
 }
 
-TEST(database, throws_exception_when_given_invalid_sql) {
-    auto db(sqlite::make_database(
-        sqlite::in_memory, sqlite::read_write_create
-    ));
+TEST_F(database, throws_exception_when_given_invalid_sql) {
     EXPECT_THROW(
         db->make_statement("INVALID STATEMENT"),
         sqlite::database_error

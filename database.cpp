@@ -32,19 +32,12 @@ database::database(sqlite3 *connection): db(connection) {
     assert(connection && "attempt to create database with null connection");
 }
 
-database::database(database &&other) {
-    assert(&other !=  this && "attempt to move database to itself");
-    std::swap(db, other.db);
-}
-
 database::~database() {
     close();
 }
 
-database & database::operator=(database &&other) {
-    assert(&other != this && "attempt to assign database to itself");
-    std::swap(db, other.db);
-    return *this;
+result_map database::execute(const std::string &sql) {
+    return result_map(create_statement(sql), ownership::take);
 }
 
 void database::close() {
@@ -57,8 +50,7 @@ void database::close() {
     );
 }
 
-std::unique_ptr<statement> database::make_statement(const std::string &sql) {
-    assert(db && "make_statement() called on closed database");
+sqlite3_stmt* database::create_statement(const std::string &sql) {
     sqlite3_stmt *stmt(nullptr);
     const auto status(sqlite3_prepare_v2(
         db, sql.c_str(), sql.size(), &stmt, nullptr
@@ -70,7 +62,11 @@ std::unique_ptr<statement> database::make_statement(const std::string &sql) {
            << "\n" "while preparing statement '" << sql << "'";
         throw database_error(ss.str());
     }
-    return std::make_unique<statement>(stmt);
+    return stmt;
+}
+
+std::unique_ptr<statement> database::make_statement(const std::string &sql) {
+    return std::make_unique<statement>(create_statement(sql));
 }
 
 std::unique_ptr<database> make_database(

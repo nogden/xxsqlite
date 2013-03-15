@@ -43,13 +43,13 @@ class database {
 public:
     database(sqlite3 *connection);
     database(const database &other) = delete;
-    database(database &&other);
+    database(database &&other) = default;
     ~database();
 
-    database & operator=(const database &other) = delete;
-    database & operator=(database &&other);
+    database& operator=(const database &other) = delete;
+    database& operator=(database &&other) = default;
 
-    //result_map execute(std::string)
+    result_map execute(const std::string &sql);
 
     std::unique_ptr<statement> make_statement(const std::string &sql);
 
@@ -57,6 +57,7 @@ public:
 
 private:
     void close();
+    sqlite3_stmt* create_statement(const std::string &sql);
 
 private:
     sqlite3 *db = nullptr;

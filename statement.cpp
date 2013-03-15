@@ -40,10 +40,10 @@ int find_parameter_index(sqlite3_stmt *stmt, const std::string &parameter) {
     return index;
 }
 
-void throw_on_error(const int status, const std::string &parameter) {
+void throw_on_bind_error(const int status, const std::string &parameter) {
     if (status != SQLITE_OK) {
         std::stringstream ss;
-        ss << sqlite3_errstr(status) << " while binding parameter '"
+        ss << error_message(status) << " while binding parameter '"
            << parameter << "'";
         throw database_error(ss.str());
     }
@@ -59,7 +59,7 @@ statement::statement(statement &&other) {
 }
 
 statement::~statement() {
-    sqlite3_finalize(stmt); // Return value is irrelevant
+    (void) sqlite3_finalize(stmt);
 }
 
 statement& statement::operator=(statement &&other) {
@@ -74,22 +74,23 @@ void statement::bind(const std::string &parameter, const blob &value) {
 
 void statement::bind(const std::string &parameter, const double &value) {
     const int index(find_parameter_index(stmt, parameter));
-    throw_on_error(sqlite3_bind_double(stmt, index, value), parameter);
+    throw_on_bind_error(sqlite3_bind_double(stmt, index, value), parameter);
 }
 
 void statement::bind(const std::string &parameter, const int &value) {
     const int index(find_parameter_index(stmt, parameter));
-    throw_on_error(sqlite3_bind_int(stmt, index, value), parameter);
+    throw_on_bind_error(sqlite3_bind_int(stmt, index, value), parameter);
 }
 
 void statement::bind(const std::string &parameter, const int64_t &value) {
     const int index(find_parameter_index(stmt, parameter));
-    throw_on_error(sqlite3_bind_int64(stmt, index, value), parameter);
+    throw_on_bind_error(sqlite3_bind_int64(stmt, index, value), parameter);
 }
 
-void statement::bind(const std::string &parameter, const null_value &value) {
+void statement::bind(const std::string &parameter, const null_t &value) {
+    (void) value;
     const int index(find_parameter_index(stmt, parameter));
-    throw_on_error(sqlite3_bind_null(stmt, index), parameter);
+    throw_on_bind_error(sqlite3_bind_null(stmt, index), parameter);
 }
 
 void statement::bind(const std::string &parameter, const std::string &value) {
@@ -97,7 +98,22 @@ void statement::bind(const std::string &parameter, const std::string &value) {
     const int status(sqlite3_bind_text(
         stmt, index, value.c_str(), value.size(), SQLITE_STATIC
     ));
-    throw_on_error(status, parameter);
+    throw_on_bind_error(status, parameter);
+}
+
+void statement::clear_bindings() {
+    assert(stmt && "clear_bindings() called with null sqlite3_stmt");
+    if (sqlite3_clear_bindings(stmt) != SQLITE_OK) {
+        std::stringstream ss;
+        ss << error_message(stmt) << " while clearing bindings";
+        throw database_error(ss.str());
+    }
+}
+
+result_map statement::execute() {
+    assert(stmt && "execute() called with null sqlite3_stmt");
+    (void) sqlite3_reset(stmt);
+    return result_map(stmt, ownership::none);
 }
 
 std::ostream & operator<<(std::ostream &os, const statement &statement) {
