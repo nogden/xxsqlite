@@ -21,3 +21,15 @@ target_link_libraries(test_statement
 add_test(test_statement
     test_statement
 )
+
+add_executable(test_result_map
+    test_result_map.cpp
+)
+target_link_libraries(test_result_map
+    sqlite
+    gtest
+    gtest_main
+)
+add_test(test_result_map
+    test_result_map
+)

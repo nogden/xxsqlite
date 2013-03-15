@@ -39,10 +39,23 @@ result_map::result_map(sqlite3_stmt *statement, const ownership &ownership):
     }
 }
 
+result_map::result_map(result_map &&other) {
+    assert(&other != this && "attempt to move into self");
+    replace_members_with(other);
+}
+
 result_map::~result_map() {
     if (owns_statement) {
         (void) sqlite3_finalize(stmt);
     }
+}
+
+result_map& result_map::operator=(result_map &&other) {
+    assert(&other != this && "attempt to move into self");
+    if (owns_statement)
+        (void) sqlite3_finalize(stmt);
+    replace_members_with(other);
+    return *this;
 }
 
 std::size_t result_map::column_count() const {
@@ -50,7 +63,15 @@ std::size_t result_map::column_count() const {
 }
 
 std::string result_map::column_name(const std::size_t &column_index) const {
-    return sqlite3_column_name(stmt, column_index);
+    const char *name(sqlite3_column_name(stmt, column_index));
+    return name ? name : "";
+}
+
+void result_map::replace_members_with(result_map &other) {
+    stmt = other.stmt;
+    owns_statement = other.owns_statement;
+    other.stmt = nullptr;
+    other.owns_statement = false;
 }
 
 const char* error_message(const int status) {

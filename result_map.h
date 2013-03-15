@@ -46,18 +46,20 @@ public:
 public:
     result_map(sqlite3_stmt *statement, const ownership &ownership);
     result_map(const result_map &other) = delete;
-    result_map(result_map &&other) = default;
-
+    result_map(result_map &&other);
     ~result_map();
 
-    result_map & operator=(const result_map &other) = delete;
-    result_map & operator=(result_map &&other) = default;
+    result_map& operator=(const result_map &other) = delete;
+    result_map& operator=(result_map &&other);
 
     std::size_t column_count() const;
     std::string column_name(const std::size_t &column_index) const;
 
 //    const_iterator begin() const;
 //    const_iterator end() const;
+
+private:
+    void replace_members_with(result_map &other);
 
 private:
     sqlite3_stmt *stmt = nullptr;
