@@ -18,7 +18,7 @@
   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include "result_map.h"
+#include "result.h"
 
 #include <sqlite3.h>
 
@@ -27,8 +27,8 @@
 
 namespace sqlite {
 
-result_map::result_map(sqlite3_stmt *statement, const ownership &ownership):
-    stmt(statement), owns_statement(ownership == ownership::take) {
+result::result(sqlite3_stmt *statement, const ownership &ownership):
+        stmt(statement), owns_statement(ownership == ownership::take) {
     assert(statement && "null sqlite3_stmt provided");
     auto status(sqlite3_step(stmt));
     if (status != SQLITE_ROW && status != SQLITE_DONE) {
@@ -37,20 +37,21 @@ result_map::result_map(sqlite3_stmt *statement, const ownership &ownership):
            << " while executing sql statement '" << sqlite3_sql(stmt) << "'";
         throw database_error(ss.str());
     }
+    end_reached = (status == SQLITE_DONE);
 }
 
-result_map::result_map(result_map &&other) {
+result::result(result &&other) {
     assert(&other != this && "attempt to move into self");
     replace_members_with(other);
 }
 
-result_map::~result_map() {
+result::~result() {
     if (owns_statement) {
         (void) sqlite3_finalize(stmt);
     }
 }
 
-result_map& result_map::operator=(result_map &&other) {
+result& result::operator=(result &&other) {
     assert(&other != this && "attempt to move into self");
     if (owns_statement)
         (void) sqlite3_finalize(stmt);
@@ -58,16 +59,27 @@ result_map& result_map::operator=(result_map &&other) {
     return *this;
 }
 
-std::size_t result_map::column_count() const {
+std::size_t result::column_count() const {
     return sqlite3_column_count(stmt);
 }
 
-std::string result_map::column_name(const std::size_t &column_index) const {
+std::string result::column_name(const std::size_t &column_index) const {
     const char *name(sqlite3_column_name(stmt, column_index));
     return name ? name : "";
 }
 
-void result_map::replace_members_with(result_map &other) {
+result::const_iterator result::begin() const {
+    return const_iterator(
+        stmt,
+        end_reached ? iterator_pos::end : iterator_pos::element
+    );
+}
+
+result::const_iterator result::end() const {
+    return const_iterator(stmt, iterator_pos::end);
+}
+
+void result::replace_members_with(result &other) {
     stmt = other.stmt;
     owns_statement = other.owns_statement;
     other.stmt = nullptr;
@@ -80,6 +92,33 @@ const char* error_message(const int status) {
 
 const char* error_message(sqlite3_stmt *statement) {
     return sqlite3_errmsg(sqlite3_db_handle(statement));
+}
+
+result::const_iterator::const_iterator(
+        sqlite3_stmt *statement,
+        const iterator_pos &position
+        ): stmt(statement), position(position) {
+    assert(statement && "null sqlite3_stmt provided");
+}
+
+result::const_iterator::const_iterator(const iterator_pos &position) {
+    (void) position;
+}
+
+bool result::const_iterator::operator==(
+        const result::const_iterator &other
+) const {
+    return stmt == other.stmt && position == other.position;
+}
+
+bool result::const_iterator::operator!=(
+        const result::const_iterator &other
+) const {
+    return ! (*this == other);
+}
+
+result::const_iterator& result::const_iterator::operator++() {
+    return *this;
 }
 
 } // namespace sqlite

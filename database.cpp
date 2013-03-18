@@ -36,8 +36,8 @@ database::~database() {
     close();
 }
 
-result_map database::execute(const std::string &sql) {
-    return result_map(create_statement(sql), ownership::take);
+result database::execute(const std::string &sql) {
+    return result(create_statement(sql), ownership::take);
 }
 
 void database::close() {

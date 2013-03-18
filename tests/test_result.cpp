@@ -22,7 +22,7 @@
 
 #include <gtest/gtest.h>
 
-class result_map: public testing::Test {
+class result: public testing::Test {
 protected:
     void SetUp() {
         db = sqlite::make_database(sqlite::in_memory, sqlite::read_write_create);
@@ -40,18 +40,18 @@ protected:
     std::unique_ptr<sqlite::database> db;
 };
 
-TEST_F(result_map, can_be_move_constructed) {
-    sqlite::result_map from(db->execute("SELECT * FROM test;"));
-    EXPECT_NO_THROW(sqlite::result_map to(std::move(from)));
+TEST_F(result, can_be_move_constructed) {
+    sqlite::result from(db->execute("SELECT * FROM test;"));
+    EXPECT_NO_THROW(sqlite::result to(std::move(from)));
 }
 
-TEST_F(result_map, can_be_move_assigned) {
-    sqlite::result_map from(db->execute("SELECT * FROM test;"));
-    EXPECT_NO_THROW(sqlite::result_map to = std::move(from));
+TEST_F(result, can_be_move_assigned) {
+    sqlite::result from(db->execute("SELECT * FROM test;"));
+    EXPECT_NO_THROW(sqlite::result to = std::move(from));
 }
 
-TEST_F(result_map, can_count_number_of_columns_in_results) {
-    sqlite::result_map results(db->execute("SELECT id FROM test;"));
+TEST_F(result, can_count_number_of_columns_in_results) {
+    sqlite::result results(db->execute("SELECT id FROM test;"));
     EXPECT_EQ(1, results.column_count());
     results = db->execute("SELECT id, name FROM test;");
     EXPECT_EQ(2, results.column_count());
@@ -59,9 +59,34 @@ TEST_F(result_map, can_count_number_of_columns_in_results) {
     EXPECT_EQ(2, results.column_count());
 }
 
-TEST_F(result_map, can_find_name_of_column) {
-    sqlite::result_map results(db->execute("SELECT id, name FROM test;"));
+TEST_F(result, can_find_name_of_column) {
+    sqlite::result results(db->execute("SELECT id, name FROM test;"));
     EXPECT_EQ("id", results.column_name(0));
     EXPECT_EQ("name", results.column_name(1));
     EXPECT_EQ("", results.column_name(2));
+}
+
+TEST_F(result, gives_same_iterator_for_begin_and_end_with_empty_data_set) {
+    sqlite::result results(db->execute(
+        "SELECT id, name FROM test WHERE id = 100;"
+    ));
+    auto start(results.begin());
+    auto end(results.end());
+    EXPECT_TRUE(start == end);
+}
+
+TEST_F(result, gives_different_iterator_for_begin_and_end_when_data_present) {
+    sqlite::result results(db->execute("SELECT id, name FROM test;"));
+    auto start(results.begin());
+    auto end(results.end());
+    EXPECT_NE(start, end);
+}
+
+TEST_F(result, begin_equals_end_after_one_increment_per_returned_row) {
+    sqlite::result results(db->execute("SELECT id, name FROM test;"));
+    auto it(results.begin());
+    EXPECT_FALSE(it == results.end());
+    EXPECT_FALSE(++it == results.end());
+    EXPECT_FALSE(++it == results.end());
+    EXPECT_TRUE(++it == results.end());
 }

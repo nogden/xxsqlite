@@ -3,8 +3,8 @@
 set(SQLITE_SOURCE_FILES
     database.h
     database.cpp
-    result_map.h
-    result_map.cpp
+    result.h
+    result.cpp
     statement.h
     statement.cpp
 )

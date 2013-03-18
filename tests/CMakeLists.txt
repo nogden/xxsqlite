@@ -22,14 +22,14 @@ add_test(test_statement
     test_statement
 )
 
-add_executable(test_result_map
-    test_result_map.cpp
+add_executable(test_result
+    test_result.cpp
 )
-target_link_libraries(test_result_map
+target_link_libraries(test_result
     sqlite
     gtest
     gtest_main
 )
-add_test(test_result_map
-    test_result_map
+add_test(test_result
+    test_result
 )

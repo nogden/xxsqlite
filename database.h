@@ -49,7 +49,7 @@ public:
     database& operator=(const database &other) = delete;
     database& operator=(database &&other) = default;
 
-    result_map execute(const std::string &sql);
+    result execute(const std::string &sql);
 
     std::unique_ptr<statement> make_statement(const std::string &sql);
 

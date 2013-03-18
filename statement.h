@@ -21,7 +21,7 @@
 #ifndef SQLITE_STATEMENT_H
 #define SQLITE_STATEMENT_H
 
-#include "result_map.h"
+#include "result.h"
 
 #include <cstdint>
 
@@ -57,7 +57,7 @@ public:
 
     void clear_bindings();
 
-    result_map execute();
+    result execute();
 
     std::size_t parameter_count() const;
 

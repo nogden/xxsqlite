@@ -99,10 +99,10 @@ void statement::clear_bindings() {
     }
 }
 
-result_map statement::execute() {
+result statement::execute() {
     assert(stmt && "execute() called with null sqlite3_stmt");
     (void) sqlite3_reset(stmt);
-    return result_map(stmt, ownership::none);
+    return result(stmt, ownership::none);
 }
 
 std::size_t statement::parameter_count() const {

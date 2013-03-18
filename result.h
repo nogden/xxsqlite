@@ -18,8 +18,8 @@
   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef SQLITE_RESULT_MAP_H
-#define SQLITE_RESULT_MAP_H
+#ifndef SQLITE_RESULT_H
+#define SQLITE_RESULT_H
 
 #include <string>
 #include <stdexcept>
@@ -38,56 +38,61 @@ enum class ownership {
     none
 };
 
-class result_map
+enum class iterator_pos {
+    element,
+    end
+};
+
+class result
 {
 public:
-    class const_iterator;
+    class const_iterator {
+    public:
+        const_iterator(
+                sqlite3_stmt *statement,
+                const iterator_pos &position = iterator_pos::element
+        );
+        const_iterator(const iterator_pos &position);
+        const_iterator(const const_iterator &other) = delete;
+        const_iterator(const_iterator &&other) = default;
+
+        bool operator==(const const_iterator &other) const;
+        bool operator!=(const const_iterator &other) const;
+
+        const_iterator& operator++();
+
+    private:
+        sqlite3_stmt *stmt = nullptr;
+        iterator_pos position = iterator_pos::element;
+    };
 
 public:
-    result_map(sqlite3_stmt *statement, const ownership &ownership);
-    result_map(const result_map &other) = delete;
-    result_map(result_map &&other);
-    ~result_map();
+    result(sqlite3_stmt *statement, const ownership &ownership);
+    result(const result &other) = delete;
+    result(result &&other);
+    ~result();
 
-    result_map& operator=(const result_map &other) = delete;
-    result_map& operator=(result_map &&other);
+    result& operator=(const result &other) = delete;
+    result& operator=(result &&other);
 
     std::size_t column_count() const;
     std::string column_name(const std::size_t &column_index) const;
 
-//    const_iterator begin() const;
-//    const_iterator end() const;
+    const_iterator begin() const;
+    const_iterator end() const;
 
 private:
-    void replace_members_with(result_map &other);
+    void replace_members_with(result &other);
 
 private:
     sqlite3_stmt *stmt = nullptr;
     bool owns_statement = false;
+    bool end_reached = false;
 };
-
-namespace {
-
-//class result_map::const_iterator {
-//public:
-//    const_iterator(sqlite3_stmt *stmt);
-//    const_iterator(const const_iterator &other);
-
-//    bool operator==(const const_iterator &other);
-//    bool operator!=(const const_iterator &other);
-
-//    field operator[](const std::string &column_name);
-//    field operator[](const std::size_t &column_index);
-
-//    void operator++();
-//    void operator++(const const_iterator &self);
-//};
-
-}
 
 const char* error_message(const int status);
 const char* error_message(sqlite3_stmt *statement);
 
 } // namespace sqlite
 
-#endif // SQLITE_RESULT_MAP_H
+#endif // SQLITE_RESULT_H
