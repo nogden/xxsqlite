@@ -36,7 +36,7 @@ protected:
 
 TEST_F(database, can_be_move_constructed) {
     EXPECT_NO_THROW(
-        sqlite::database database(std::move(*db.release()))
+        sqlite::database database{std::move(*db.release())}
     );
 }
 
@@ -48,7 +48,7 @@ TEST_F(database, can_be_move_assigned) {
 
 TEST_F(database, asserts_when_created_with_null_pointer) {
     EXPECT_DEATH(
-        sqlite::database database(nullptr),
+        sqlite::database database{nullptr},
         ""
     );
 }
@@ -66,9 +66,9 @@ TEST_F(database, throws_database_error_when_executing_invalid_sql) {
 
 TEST_F(database, returns_prepared_statement_when_given_valid_sql) {
     EXPECT_NO_THROW(
-        auto statement(db->make_statement(
+        auto statement{db->make_statement(
             "CREATE TABLE test (id INTEGER PRIMARY KEY);"
-        ));
+        )};
     );
 }
 

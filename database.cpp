@@ -28,7 +28,7 @@
 
 namespace sqlite {
 
-database::database(sqlite3 *connection): db(connection) {
+database::database(sqlite3 *connection): db{connection} {
     assert(connection && "attempt to create database with null connection");
 }
 
@@ -37,11 +37,11 @@ database::~database() {
 }
 
 result database::execute(const std::string &sql) {
-    return result(create_statement(sql), ownership::take);
+    return {create_statement(sql), ownership::take};
 }
 
 void database::close() {
-    const auto status(sqlite3_close(db));
+    auto status(sqlite3_close(db));
     db = nullptr;
     // Can't throw, called from destructor
     assert(
@@ -51,8 +51,8 @@ void database::close() {
 }
 
 sqlite3_stmt* database::create_statement(const std::string &sql) {
-    sqlite3_stmt *stmt(nullptr);
-    const auto status(sqlite3_prepare_v2(
+    sqlite3_stmt *stmt{nullptr};
+    auto status(sqlite3_prepare_v2(
         db, sql.c_str(), sql.size(), &stmt, nullptr
     ));
     if (status != SQLITE_OK) {
@@ -60,7 +60,7 @@ sqlite3_stmt* database::create_statement(const std::string &sql) {
         std::stringstream ss;
         ss << sqlite3_errstr(status)
            << "\n" "while preparing statement '" << sql << "'";
-        throw database_error(ss.str());
+        throw database_error{ss.str()};
     }
     return stmt;
 }
@@ -79,7 +79,7 @@ std::unique_ptr<database> make_database(
         std::stringstream ss;
         ss << sqlite3_errmsg(db)
            << "\n" "while opening database: " << path;
-        throw database_error(ss.str());
+        throw database_error{ss.str()};
     }
     return std::make_unique<database>(db);
 }

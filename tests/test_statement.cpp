@@ -30,13 +30,13 @@ class statement: public testing::Test {
 protected:
     void SetUp() {
         db = sqlite::make_database(sqlite::in_memory, sqlite::read_write_create);
-        db->execute(
+        (void) db->execute(
             "CREATE TABLE test("
             "    id INTEGER PRIMARY KEY AUTOINCREMENT,"
             "    name TEXT"
             ");"
         );
-        db->execute("INSERT INTO test (id, name) VALUES (1, 'test');");
+        (void) db->execute("INSERT INTO test (id, name) VALUES (1, 'test');");
     }
 
     std::unique_ptr<sqlite::database> db;
@@ -44,7 +44,7 @@ protected:
 
 TEST_F(statement, can_be_move_constructed) {
     auto from(db->make_statement("SELECT * FROM test;"));
-    EXPECT_NO_THROW(sqlite::statement to(std::move(*from.release())));
+    EXPECT_NO_THROW(sqlite::statement to{std::move(*from.release())});
 }
 
 TEST_F(statement, can_be_move_assigned) {

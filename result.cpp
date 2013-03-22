@@ -36,7 +36,7 @@ bool step_result(sqlite3_stmt *stmt) {
         std::stringstream ss;
         ss << error_message(stmt)
            << " while executing sql statement '" << sqlite3_sql(stmt) << "'";
-        throw database_error(ss.str());
+        throw database_error{ss.str()};
     }
     return status == SQLITE_DONE;
 }
@@ -44,7 +44,7 @@ bool step_result(sqlite3_stmt *stmt) {
 }
 
 result::result(sqlite3_stmt *statement, const ownership &ownership):
-        stmt(statement), owns_statement(ownership == ownership::take) {
+        stmt{statement}, owns_statement{ownership == ownership::take} {
     assert(statement && "null sqlite3_stmt provided");
     end_reached = step_result(stmt);
 }
@@ -73,7 +73,7 @@ std::size_t result::column_count() const {
 }
 
 std::string result::column_name(const std::size_t &column_index) const {
-    const char *name(sqlite3_column_name(stmt, column_index));
+    const char *name{sqlite3_column_name(stmt, column_index)};
     return name ? name : "";
 }
 
@@ -103,7 +103,7 @@ const char* error_message(sqlite3_stmt *statement) {
 result::const_iterator::const_iterator(
         sqlite3_stmt *statement,
         const iterator_pos &position
-): stmt(statement), at_end(position == iterator_pos::end) {
+): stmt{statement}, at_end{position == iterator_pos::end} {
     assert(statement && "null sqlite3_stmt provided");
 }
 
