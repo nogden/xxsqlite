@@ -27,9 +27,10 @@
 
 namespace sqlite {
 
-result::result(sqlite3_stmt *statement, const ownership &ownership):
-        stmt(statement), owns_statement(ownership == ownership::take) {
-    assert(statement && "null sqlite3_stmt provided");
+namespace {
+
+bool step_result(sqlite3_stmt *stmt) {
+    assert(stmt && "attempt to step null sqlite3_stmt");
     auto status(sqlite3_step(stmt));
     if (status != SQLITE_ROW && status != SQLITE_DONE) {
         std::stringstream ss;
@@ -37,7 +38,15 @@ result::result(sqlite3_stmt *statement, const ownership &ownership):
            << " while executing sql statement '" << sqlite3_sql(stmt) << "'";
         throw database_error(ss.str());
     }
-    end_reached = (status == SQLITE_DONE);
+    return status == SQLITE_DONE;
+}
+
+}
+
+result::result(sqlite3_stmt *statement, const ownership &ownership):
+        stmt(statement), owns_statement(ownership == ownership::take) {
+    assert(statement && "null sqlite3_stmt provided");
+    end_reached = step_result(stmt);
 }
 
 result::result(result &&other) {
@@ -69,14 +78,11 @@ std::string result::column_name(const std::size_t &column_index) const {
 }
 
 result::const_iterator result::begin() const {
-    return const_iterator(
-        stmt,
-        end_reached ? iterator_pos::end : iterator_pos::element
-    );
+    return {stmt, end_reached ? iterator_pos::end : iterator_pos::element};
 }
 
 result::const_iterator result::end() const {
-    return const_iterator(stmt, iterator_pos::end);
+    return {stmt, iterator_pos::end};
 }
 
 void result::replace_members_with(result &other) {
@@ -97,18 +103,14 @@ const char* error_message(sqlite3_stmt *statement) {
 result::const_iterator::const_iterator(
         sqlite3_stmt *statement,
         const iterator_pos &position
-        ): stmt(statement), position(position) {
+): stmt(statement), at_end(position == iterator_pos::end) {
     assert(statement && "null sqlite3_stmt provided");
-}
-
-result::const_iterator::const_iterator(const iterator_pos &position) {
-    (void) position;
 }
 
 bool result::const_iterator::operator==(
         const result::const_iterator &other
 ) const {
-    return stmt == other.stmt && position == other.position;
+    return stmt == other.stmt && at_end == other.at_end;
 }
 
 bool result::const_iterator::operator!=(
@@ -118,6 +120,7 @@ bool result::const_iterator::operator!=(
 }
 
 result::const_iterator& result::const_iterator::operator++() {
+    at_end = step_result(stmt);
     return *this;
 }
 
