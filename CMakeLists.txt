@@ -7,6 +7,8 @@ set(SQLITE_SOURCE_FILES
     error.cpp
     result.h
     result.cpp
+    row.h
+    row.cpp
     statement.h
     statement.cpp
 )

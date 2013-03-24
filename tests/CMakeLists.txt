@@ -33,3 +33,15 @@ target_link_libraries(test_result
 add_test(test_result
     test_result
 )
+
+add_executable(test_row
+    test_row.cpp
+)
+target_link_libraries(test_row
+    sqlite
+    gtest
+    gtest_main
+)
+add_test(test_row
+    test_row
+)
