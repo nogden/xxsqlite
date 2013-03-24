@@ -19,6 +19,8 @@
 */
 
 #include "sqlite/database.h"
+#include "sqlite/statement.h"
+#include "sqlite/error.h"
 
 #include <sqlite3.h>
 
@@ -65,23 +67,23 @@ TEST_F(statement, throws_database_error_when_binding_to_absent_parameter) {
     auto statement(db->make_statement("SELECT * FROM test;"));
     EXPECT_THROW(
         statement->bind("@param", static_cast<double>(0.0)),
-        sqlite::database_error
+        sqlite::bad_parameter
     );
     EXPECT_THROW(
         statement->bind("@param", static_cast<int>(0)),
-        sqlite::database_error
+        sqlite::bad_parameter
     );
     EXPECT_THROW(
         statement->bind("@param", static_cast<int64_t>(0)),
-        sqlite::database_error
+        sqlite::bad_parameter
     );
     EXPECT_THROW(
         statement->bind("@param", sqlite::null),
-        sqlite::database_error
+        sqlite::bad_parameter
     );
     EXPECT_THROW(
         statement->bind("@param", "string"),
-        sqlite::database_error
+        sqlite::bad_parameter
     );
 }
 

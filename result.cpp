@@ -19,6 +19,7 @@
 */
 
 #include "result.h"
+#include "error.h"
 
 #include <sqlite3.h>
 
@@ -32,12 +33,8 @@ namespace {
 bool step_result(sqlite3_stmt *stmt) {
     assert(stmt && "attempt to step null sqlite3_stmt");
     auto status(sqlite3_step(stmt));
-    if (status != SQLITE_ROW && status != SQLITE_DONE) {
-        std::stringstream ss;
-        ss << error_message(stmt)
-           << " while executing sql statement '" << sqlite3_sql(stmt) << "'";
-        throw database_error{ss.str()};
-    }
+    if (status != SQLITE_ROW && status != SQLITE_DONE)
+        throw bad_statement(stmt);
     return status == SQLITE_DONE;
 }
 

@@ -47,23 +47,26 @@ public:
     statement & operator=(const statement &other) = delete;
     statement & operator=(statement &&other) = default;
 
-
+    std::size_t parameter_count() const;
     void bind(const std::string &parameter, const sqlite::blob &value);
     void bind(const std::string &parameter, const double &value);
     void bind(const std::string &parameter, const int &value);
     void bind(const std::string &parameter, const int64_t &value);
     void bind(const std::string &parameter, const null_t &value);
     void bind(const std::string &parameter, const std::string &value);
-
     void clear_bindings();
 
     result execute();
 
-    std::size_t parameter_count() const;
-
     friend std::ostream& operator<<(
         std::ostream &os, const statement &statement
     );
+
+private:
+    void throw_on_bind_error(
+            const int status,
+            const std::string &parameter
+    ) const;
 
 private:
     sqlite3_stmt *stmt = nullptr;

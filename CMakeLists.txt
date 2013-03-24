@@ -3,6 +3,8 @@
 set(SQLITE_SOURCE_FILES
     database.h
     database.cpp
+    error.h
+    error.cpp
     result.h
     result.cpp
     statement.h

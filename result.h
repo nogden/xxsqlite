@@ -22,16 +22,11 @@
 #define SQLITE_RESULT_H
 
 #include <string>
-#include <stdexcept>
+#include <cstdint>
 
 struct sqlite3_stmt;
 
 namespace sqlite {
-
-class database_error: public std::runtime_error {
-public:
-    database_error(const std::string &msg): std::runtime_error(msg) {}
-};
 
 enum class ownership {
     take,
@@ -92,9 +87,6 @@ private:
     bool owns_statement = false;
     bool end_reached = false;
 };
-
-const char* error_message(const int status);
-const char* error_message(sqlite3_stmt *statement);
 
 } // namespace sqlite
 

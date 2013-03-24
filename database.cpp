@@ -19,6 +19,7 @@
 */
 
 #include "database.h"
+#include "error.h"
 
 #include <sqlite3.h>
 
@@ -28,7 +29,7 @@
 
 namespace sqlite {
 
-database::database(sqlite3 *connection): db{connection} {
+database::database(sqlite3 *connection): db(connection) {
     assert(connection && "attempt to create database with null connection");
 }
 
@@ -51,17 +52,12 @@ void database::close() {
 }
 
 sqlite3_stmt* database::create_statement(const std::string &sql) {
-    sqlite3_stmt *stmt{nullptr};
+    sqlite3_stmt *stmt(nullptr);
     auto status(sqlite3_prepare_v2(
         db, sql.c_str(), sql.size(), &stmt, nullptr
     ));
-    if (status != SQLITE_OK) {
-        sqlite3_finalize(stmt);
-        std::stringstream ss;
-        ss << sqlite3_errstr(status)
-           << "\n" "while preparing statement '" << sql << "'";
-        throw database_error{ss.str()};
-    }
+    if (status != SQLITE_OK)
+        throw bad_statement(status, sql);
     return stmt;
 }
 
@@ -74,12 +70,10 @@ std::unique_ptr<database> make_database(
         const access_mode &permissions
 ) {
     sqlite3 *db;
-    if (sqlite3_open_v2(path.c_str(), &db, permissions, nullptr) != SQLITE_OK) {
+    auto status(sqlite3_open_v2(path.c_str(), &db, permissions, nullptr));
+    if (status != SQLITE_OK) {
         sqlite3_close_v2(db);
-        std::stringstream ss;
-        ss << sqlite3_errmsg(db)
-           << "\n" "while opening database: " << path;
-        throw database_error{ss.str()};
+        throw error(status);
     }
     return std::make_unique<database>(db);
 }

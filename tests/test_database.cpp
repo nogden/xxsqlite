@@ -20,6 +20,7 @@
 
 #include "sqlite/database.h"
 #include "sqlite/statement.h"
+#include "sqlite/error.h"
 
 #include <gtest/gtest.h>
 
@@ -61,7 +62,7 @@ TEST_F(database, executes_valid_sql_sucessfully) {
 }
 
 TEST_F(database, throws_database_error_when_executing_invalid_sql) {
-    EXPECT_THROW(db->execute("INVALID STATEMENT"), sqlite::database_error);
+    EXPECT_THROW(db->execute("INVALID STATEMENT"), sqlite::bad_statement);
 }
 
 TEST_F(database, returns_prepared_statement_when_given_valid_sql) {
@@ -75,6 +76,6 @@ TEST_F(database, returns_prepared_statement_when_given_valid_sql) {
 TEST_F(database, throws_database_error_when_given_invalid_sql) {
     EXPECT_THROW(
         db->make_statement("INVALID STATEMENT"),
-        sqlite::database_error
+        sqlite::bad_statement
     );
 }
