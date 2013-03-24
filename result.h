@@ -64,6 +64,7 @@ public:
     result& operator=(const result &other) = delete;
     result& operator=(result &&other);
 
+    std::size_t row_modification_count() const;
     std::size_t column_count() const;
     std::string column_name(const std::size_t &column_index) const;
 

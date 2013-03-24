@@ -66,6 +66,12 @@ result& result::operator=(result &&other) {
     return *this;
 }
 
+std::size_t result::row_modification_count() const {
+    sqlite3 *db(sqlite3_db_handle(stmt));
+    assert(db && "unable to aquire associated database");
+    return sqlite3_stmt_readonly(stmt) ? 0 : sqlite3_changes(db);
+}
+
 std::size_t result::column_count() const {
     return sqlite3_column_count(stmt);
 }

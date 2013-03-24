@@ -68,6 +68,22 @@ TEST_F(result, can_find_name_of_column) {
     EXPECT_EQ("", results.column_name(2));
 }
 
+TEST_F(result, states_no_rows_modified_on_pure_query) {
+    sqlite::result results(db->execute("SELECT id, name FROM test;"));
+    EXPECT_EQ(0, results.row_modification_count());
+}
+
+TEST_F(result, gives_number_of_rows_changed_on_a_modifying_statement) {
+    sqlite::result one(db->execute(
+        "UPDATE test SET name = 'test' WHERE id = 1;"
+    ));
+    EXPECT_EQ(1, one.row_modification_count());
+    sqlite::result three(db->execute(
+        "UPDATE test SET name = 'test';"
+    ));
+    EXPECT_EQ(3, three.row_modification_count());
+}
+
 TEST_F(result, gives_same_iterator_for_begin_and_end_with_empty_data_set) {
     sqlite::result results(db->execute(
         "SELECT id, name FROM test WHERE id = 100;"
