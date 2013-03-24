@@ -91,5 +91,12 @@ const char *bind_error::what() const noexcept {
 }
 
 
+out_of_range::out_of_range(): error(SQLITE_DONE) {}
+
+const char* out_of_range::what() const noexcept {
+    return "attempt to increment beyond end of results collection";
+}
+
+
 
 } // namespace sqlite

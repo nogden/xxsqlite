@@ -38,10 +38,12 @@ bool step_result(sqlite3_stmt *stmt) {
     return status == SQLITE_DONE;
 }
 
+bool iterator_end(true);
+
 }
 
 result::result(sqlite3_stmt *statement, const ownership &ownership):
-        stmt{statement}, owns_statement{ownership == ownership::take} {
+        stmt(statement), owns_statement(ownership == ownership::take) {
     assert(statement && "null sqlite3_stmt provided");
     end_reached = step_result(stmt);
 }
@@ -52,9 +54,8 @@ result::result(result &&other) {
 }
 
 result::~result() {
-    if (owns_statement) {
+    if (owns_statement)
         (void) sqlite3_finalize(stmt);
-    }
 }
 
 result& result::operator=(result &&other) {
@@ -70,16 +71,16 @@ std::size_t result::column_count() const {
 }
 
 std::string result::column_name(const std::size_t &column_index) const {
-    const char *name{sqlite3_column_name(stmt, column_index)};
+    const char *name(sqlite3_column_name(stmt, column_index));
     return name ? name : "";
 }
 
 result::const_iterator result::begin() const {
-    return {stmt, end_reached ? iterator_pos::end : iterator_pos::element};
+    return {stmt, end_reached};
 }
 
 result::const_iterator result::end() const {
-    return {stmt, iterator_pos::end};
+    return {stmt, iterator_end};
 }
 
 void result::replace_members_with(result &other) {
@@ -99,15 +100,15 @@ const char* error_message(sqlite3_stmt *statement) {
 
 result::const_iterator::const_iterator(
         sqlite3_stmt *statement,
-        const iterator_pos &position
-): stmt{statement}, at_end{position == iterator_pos::end} {
+        bool &at_end
+): stmt(statement), end_reached(at_end) {
     assert(statement && "null sqlite3_stmt provided");
 }
 
 bool result::const_iterator::operator==(
         const result::const_iterator &other
 ) const {
-    return stmt == other.stmt && at_end == other.at_end;
+    return stmt == other.stmt && end_reached == other.end_reached;
 }
 
 bool result::const_iterator::operator!=(
@@ -117,7 +118,10 @@ bool result::const_iterator::operator!=(
 }
 
 result::const_iterator& result::const_iterator::operator++() {
-    at_end = step_result(stmt);
+    assert(! end_reached && "attempt to increment past last result");
+    if (end_reached)
+        throw out_of_range();
+    end_reached = step_result(stmt);
     return *this;
 }
 

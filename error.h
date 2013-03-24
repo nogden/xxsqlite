@@ -67,6 +67,12 @@ private:
     std::size_t index;
 };
 
+class out_of_range: public error {
+public:
+    out_of_range();
+    const char* what() const noexcept;
+};
+
 } // namespace sqlite
 
 #endif // SQLITE_ERROR_H

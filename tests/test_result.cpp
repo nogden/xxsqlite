@@ -19,6 +19,8 @@
 */
 
 #include "sqlite/database.h"
+#include "sqlite/result.h"
+#include "sqlite/error.h"
 
 #include <gtest/gtest.h>
 
@@ -89,4 +91,13 @@ TEST_F(result, begin_equals_end_after_one_increment_per_returned_row) {
     EXPECT_FALSE(++it == results.end());
     EXPECT_FALSE(++it == results.end());
     EXPECT_TRUE(++it == results.end());
+}
+
+TEST_F(result, asserts_or_throws_out_of_range_on_attempt_to_increment_past_end) {
+    sqlite::result results(
+        db->execute("SELECT id, name FROM test WHERE id = 1;")
+    );
+    auto it(results.begin());
+    EXPECT_NO_THROW(++it);
+    EXPECT_DEBUG_DEATH(++it, "");
 }

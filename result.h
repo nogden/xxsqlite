@@ -33,21 +33,12 @@ enum class ownership {
     none
 };
 
-enum class iterator_pos {
-    element,
-    end
-};
-
 class result
 {
 public:
     class const_iterator {
     public:
-        const_iterator(
-                sqlite3_stmt *statement,
-                const iterator_pos &position = iterator_pos::element
-        );
-        const_iterator(const iterator_pos &position);
+        const_iterator(sqlite3_stmt *statement, bool &at_end);
         const_iterator(const const_iterator &other) = delete;
         const_iterator(const_iterator &&other) = default;
 
@@ -61,7 +52,7 @@ public:
 
     private:
         sqlite3_stmt *stmt = nullptr;
-        bool at_end = false;
+        bool &end_reached;
     };
 
 public:
@@ -85,7 +76,7 @@ private:
 private:
     sqlite3_stmt *stmt = nullptr;
     bool owns_statement = false;
-    bool end_reached = false;
+    mutable bool end_reached = false;
 };
 
 } // namespace sqlite
