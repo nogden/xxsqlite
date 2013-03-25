@@ -19,11 +19,22 @@
 */
 
 #include "row.h"
+#include "parameter_lookup.h"
+
+#include <cassert>
 
 namespace sqlite {
 
-row::row(sqlite3_stmt *statement)
-{
+row::row(sqlite3_stmt *statement): stmt(statement) {
+    assert(statement && "received null sqlite3_stmt");
+}
+
+field row::operator[](const std::string &column_name) const {
+    return {stmt, internal::find_parameter_index(column_name, stmt)};
+}
+
+field row::operator[](const std::size_t &column_index) const {
+    return {stmt, column_index};
 }
 
 } // namespace sqlite

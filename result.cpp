@@ -107,7 +107,7 @@ const char* error_message(sqlite3_stmt *statement) {
 result::const_iterator::const_iterator(
         sqlite3_stmt *statement,
         bool &at_end
-): stmt(statement), end_reached(at_end) {
+): stmt(statement), end_reached(at_end), current_row(statement) {
     assert(statement && "null sqlite3_stmt provided");
 }
 
@@ -128,7 +128,16 @@ result::const_iterator& result::const_iterator::operator++() {
     if (end_reached)
         throw out_of_range();
     end_reached = step_result(stmt);
+    current_row = stmt;
     return *this;
+}
+
+const row& result::const_iterator::operator*() const {
+    return current_row;
+}
+
+const row* result::const_iterator::operator ->() const {
+    return &current_row;
 }
 
 } // namespace sqlite

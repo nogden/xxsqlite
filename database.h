@@ -51,13 +51,13 @@ public:
 
     result execute(const std::string &sql);
 
-    std::unique_ptr<statement> make_statement(const std::string &sql);
+    std::unique_ptr<statement> make_statement(const std::string &sql) const;
 
     friend std::ostream& operator<<(std::ostream &stream, const database &db);
 
 private:
     void close();
-    sqlite3_stmt* create_statement(const std::string &sql);
+    sqlite3_stmt* create_statement(const std::string &sql) const;
 
 private:
     sqlite3 *db = nullptr;

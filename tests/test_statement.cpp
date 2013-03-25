@@ -44,16 +44,6 @@ protected:
     std::unique_ptr<sqlite::database> db;
 };
 
-TEST_F(statement, can_be_move_constructed) {
-    auto from(db->make_statement("SELECT * FROM test;"));
-    EXPECT_NO_THROW(sqlite::statement to{std::move(*from.release())});
-}
-
-TEST_F(statement, can_be_move_assigned) {
-    auto from(db->make_statement("SELECT * FROM test;"));
-    EXPECT_NO_THROW(sqlite::statement to = std::move(*from.release()));
-}
-
 TEST_F(statement, binds_any_parameter_when_name_is_present_in_sql_string) {
     auto statement(db->make_statement("SELECT * FROM test WHERE id = @param;"));
     EXPECT_NO_THROW(statement->bind("@param", static_cast<double>(0.0)));

@@ -51,7 +51,7 @@ void database::close() {
     );
 }
 
-sqlite3_stmt* database::create_statement(const std::string &sql) {
+sqlite3_stmt* database::create_statement(const std::string &sql) const {
     sqlite3_stmt *stmt(nullptr);
     auto status(sqlite3_prepare_v2(
         db, sql.c_str(), sql.size(), &stmt, nullptr
@@ -61,7 +61,9 @@ sqlite3_stmt* database::create_statement(const std::string &sql) {
     return stmt;
 }
 
-std::unique_ptr<statement> database::make_statement(const std::string &sql) {
+std::unique_ptr<statement> database::make_statement(
+        const std::string &sql
+) const {
     return std::make_unique<statement>(create_statement(sql));
 }
 

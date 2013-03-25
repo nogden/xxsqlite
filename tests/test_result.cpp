@@ -42,16 +42,6 @@ protected:
     std::unique_ptr<sqlite::database> db;
 };
 
-TEST_F(result, can_be_move_constructed) {
-    sqlite::result from(db->execute("SELECT * FROM test;"));
-    EXPECT_NO_THROW(sqlite::result to(std::move(from)));
-}
-
-TEST_F(result, can_be_move_assigned) {
-    sqlite::result from(db->execute("SELECT * FROM test;"));
-    EXPECT_NO_THROW(sqlite::result to = std::move(from));
-}
-
 TEST_F(result, can_count_number_of_columns_in_results) {
     sqlite::result results(db->execute("SELECT id FROM test;"));
     EXPECT_EQ(1, results.column_count());

@@ -18,35 +18,37 @@
   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef SQLITE_ROW_H
-#define SQLITE_ROW_H
-
-#include "field.h"
+#ifndef SQLITE_FIELD_H
+#define SQLITE_FIELD_H
 
 #include <string>
 #include <cstdint>
 
 struct sqlite3_stmt;
+//extern "C" const unsigned char* sqlite3_column_text(sqlite3_stmt *, int);
 
 namespace sqlite {
 
-class row
-{
+class field {
 public:
-    row(sqlite3_stmt *statement);
-    row(const row &other) = default;
-    row(row &&other) = default;
+    field(sqlite3_stmt *statement, const std::size_t &parameter_index);
 
-    row& operator=(const row &other) = default;
-    row& operator=(row &&other) = default;
+    bool is_null() const;
+    explicit operator bool() const;
 
-    field operator[](const std::string &column_name) const;
-    field operator[](const std::size_t &column_index) const;
+    template<typename T>
+    T as() const;
 
 private:
     sqlite3_stmt *stmt;
+    const std::size_t index;
 };
 
-} // namespace sqlite
+//template<>
+//std::string field::as<std::string>() const {
+//    return "";//reinterpret_cast<const char*>(sqlite3_column_text(stmt, index));
+//}
 
-#endif // SQLITE_ROW_H
+}   // namespace sqlite
+
+#endif // SQLITE_FIELD_H

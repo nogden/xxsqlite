@@ -21,6 +21,8 @@
 #ifndef SQLITE_RESULT_H
 #define SQLITE_RESULT_H
 
+#include "row.h"
+
 #include <string>
 #include <cstdint>
 
@@ -49,10 +51,13 @@ public:
         bool operator!=(const const_iterator &other) const;
 
         const_iterator& operator++();
+        const row& operator*() const;
+        const row* operator->() const;
 
     private:
         sqlite3_stmt *stmt = nullptr;
         bool &end_reached;
+        row current_row;
     };
 
 public:

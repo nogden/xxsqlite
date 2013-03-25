@@ -5,6 +5,10 @@ set(SQLITE_SOURCE_FILES
     database.cpp
     error.h
     error.cpp
+    field.h
+    field.cpp
+    parameter_lookup.h
+    parameter_lookup.cpp
     result.h
     result.cpp
     row.h

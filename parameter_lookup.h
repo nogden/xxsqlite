@@ -18,35 +18,22 @@
   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef SQLITE_ROW_H
-#define SQLITE_ROW_H
-
-#include "field.h"
+#ifndef SQLITE_PARAMETER_LOOKUP_H
+#define SQLITE_PARAMETER_LOOKUP_H
 
 #include <string>
-#include <cstdint>
 
 struct sqlite3_stmt;
 
 namespace sqlite {
+namespace internal {
 
-class row
-{
-public:
-    row(sqlite3_stmt *statement);
-    row(const row &other) = default;
-    row(row &&other) = default;
+std::size_t find_parameter_index(
+        const std::string &parameter,
+        sqlite3_stmt *stmt
+);
 
-    row& operator=(const row &other) = default;
-    row& operator=(row &&other) = default;
+}   // namespace internal
+}   // namespace sqlite
 
-    field operator[](const std::string &column_name) const;
-    field operator[](const std::size_t &column_index) const;
-
-private:
-    sqlite3_stmt *stmt;
-};
-
-} // namespace sqlite
-
-#endif // SQLITE_ROW_H
+#endif // SQLITE_PARAMETER_LOOKUP_H

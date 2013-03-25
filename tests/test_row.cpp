@@ -19,6 +19,8 @@
 */
 
 #include "sqlite/database.h"
+#include "sqlite/row.h"
+#include "sqlite/field.h"
 
 #include <gtest/gtest.h>
 
@@ -26,11 +28,25 @@ class row: public testing::Test {
 protected:
     void SetUp() {
         db = sqlite::make_database(sqlite::in_memory, sqlite::read_write_create);
+        (void) db->execute(
+            "CREATE TABLE test("
+            "    id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "    name TEXT"
+            ");"
+        );
+        (void) db->execute("INSERT INTO test (id, name) VALUES (1, 'test');");
+    }
+
+    sqlite::row make_row() {
+        sqlite::result result(db->execute("SELECT * FROM test;"));
+        return *result.begin();
     }
 
     std::unique_ptr<sqlite::database> db;
 };
 
-TEST_F(row, can_be_move_constructed) {
-
+TEST_F(row, provides_corresponding_field_when_given_column_name) {
+//    sqlite::row row(make_row());
+//    sqlite::field field(row["id"]);
+//    EXPECT_EQ("test", field.as<std::string>());
 }

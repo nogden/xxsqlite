@@ -20,6 +20,7 @@
 
 #include "statement.h"
 #include "error.h"
+#include "parameter_lookup.h"
 
 #include <sqlite3.h>
 
@@ -28,18 +29,6 @@
 #include <cassert>
 
 namespace sqlite {
-
-namespace {
-
-int find_parameter_index(const std::string &parameter, sqlite3_stmt *stmt) {
-    assert(stmt && "null sqlite3_stmt provided");
-    auto index(sqlite3_bind_parameter_index(stmt, parameter.c_str()));
-    if (! index)
-        throw bad_parameter(parameter, stmt);
-    return index;
-}
-
-}
 
 statement::statement(sqlite3_stmt *statement): stmt(statement) {
     assert(statement && "attempt to create statement with null sqlite3_stmt");
@@ -54,28 +43,28 @@ void statement::bind(const std::string &parameter, const blob &value) {
 }
 
 void statement::bind(const std::string &parameter, const double &value) {
-    auto index(find_parameter_index(parameter, stmt));
+    auto index(internal::find_parameter_index(parameter, stmt));
     throw_on_bind_error(sqlite3_bind_double(stmt, index, value), parameter);
 }
 
 void statement::bind(const std::string &parameter, const int &value) {
-    auto index(find_parameter_index(parameter, stmt));
+    auto index(internal::find_parameter_index(parameter, stmt));
     throw_on_bind_error(sqlite3_bind_int(stmt, index, value), parameter);
 }
 
 void statement::bind(const std::string &parameter, const int64_t &value) {
-    auto index(find_parameter_index(parameter, stmt));
+    auto index(internal::find_parameter_index(parameter, stmt));
     throw_on_bind_error(sqlite3_bind_int64(stmt, index, value), parameter);
 }
 
 void statement::bind(const std::string &parameter, const null_t &value) {
     (void) value;
-    auto index(find_parameter_index(parameter, stmt));
+    auto index(internal::find_parameter_index(parameter, stmt));
     throw_on_bind_error(sqlite3_bind_null(stmt, index), parameter);
 }
 
 void statement::bind(const std::string &parameter, const std::string &value) {
-    auto index(find_parameter_index(parameter, stmt));
+    auto index(internal::find_parameter_index(parameter, stmt));
     auto status(sqlite3_bind_text(
         stmt, index, value.c_str(), value.size(), SQLITE_STATIC
     ));
