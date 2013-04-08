@@ -1,30 +1,17 @@
-# Builds the sqlite wrapper library
+project(++sqlite)
+cmake_minimum_required(VERSION 2.8)
 
-set(SQLITE_SOURCE_FILES
-    database.h
-    database.cpp
-    error.h
-    error.cpp
-    field.h
-    field.cpp
-    parameter_lookup.h
-    parameter_lookup.cpp
-    result.h
-    result.cpp
-    row.h
-    row.cpp
-    statement.h
-    statement.cpp
-)
+option(BUILD_UNIT_TESTS "Build the unit tests" ON)
 
-add_library(sqlite STATIC
-    ${SQLITE_SOURCE_FILES}
-)
-
-target_link_libraries(sqlite
-    sqlite3
-)
-
-if(BUILD_UNIT_TESTS)
-    add_subdirectory("tests")
+find_package(GTest QUIET)
+if(GTEST_FOUND)
+  enable_testing()
+  include_directories("${GTEST_INCLUDE_DIRS}")
+else()
+  message("### Google Test Framework not found, unit tests will not be built.")
+  set(BUILD_UNIT_TESTS false)
 endif()
+
+add_definitions("-std=c++11")
+
+add_subdirectory(src)

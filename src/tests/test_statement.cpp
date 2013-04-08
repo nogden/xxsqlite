@@ -18,9 +18,9 @@
   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include "sqlite/database.h"
-#include "sqlite/statement.h"
-#include "sqlite/error.h"
+#include "database.h"
+#include "statement.h"
+#include "error.h"
 
 #include <sqlite3.h>
 
