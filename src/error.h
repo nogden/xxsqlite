@@ -31,6 +31,7 @@ namespace sqlite {
 class error: public std::runtime_error {
 public:
     error(const int error_code);
+    error(const std::string &msg);
     const int sqlite_error_code() const noexcept { return code; }
 
 private:

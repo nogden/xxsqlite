@@ -53,6 +53,8 @@ const int error_code(sqlite3_stmt *statement) {
 error::error(const int error_code):
     std::runtime_error(error_message(error_code)), code(error_code) {}
 
+error::error(const std::string &msg): std::runtime_error(msg) {}
+
 
 bad_statement::bad_statement(sqlite3_stmt *stmt):
     error(error_code(stmt)), sql_statement(sqlite3_sql(stmt)) {}

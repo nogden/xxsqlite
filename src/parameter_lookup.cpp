@@ -39,5 +39,19 @@ std::size_t find_parameter_index(
     return index;
 }
 
+std::size_t find_column_index(
+        const std::string &column_name,
+        sqlite3_stmt *stmt
+) {
+    assert(stmt && "null sqlite3_stmt provided");
+    std::size_t column_count(sqlite3_column_count(stmt));
+    for (std::size_t i(0); i < column_count; ++i) {
+        if (sqlite3_column_name(stmt, i) == column_name)
+            return i;
+    }
+    assert(false && "invalid column name provided");
+    throw error("invalid column name: " + column_name);
+}
+
 }   // namespace internal
 }   // namespace sqlite

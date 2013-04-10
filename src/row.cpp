@@ -30,7 +30,7 @@ row::row(sqlite3_stmt *statement): stmt(statement) {
 }
 
 field row::operator[](const std::string &column_name) const {
-    return {stmt, internal::find_parameter_index(column_name, stmt)};
+    return {stmt, internal::find_column_index(column_name, stmt)};
 }
 
 field row::operator[](const std::size_t &column_index) const {

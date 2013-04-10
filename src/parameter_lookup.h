@@ -33,6 +33,11 @@ std::size_t find_parameter_index(
         sqlite3_stmt *stmt
 );
 
+std::size_t find_column_index(
+        const std::string &column_name,
+        sqlite3_stmt *stmt
+);
+
 }   // namespace internal
 }   // namespace sqlite
 
