@@ -33,18 +33,18 @@ std::string error_message(const int status) { return sqlite3_errstr(status); }
 
 std::string error_message(sqlite3 *db) { return sqlite3_errmsg(db); }
 
-std::string error_message(sqlite3_stmt *stmt) {
-    sqlite3 *db(sqlite3_db_handle(stmt));
+std::string error_message(const std::shared_ptr<sqlite3_stmt> &stmt) {
+    sqlite3 *db(sqlite3_db_handle(stmt.get()));
     std::stringstream ss;
     ss << error_message(db) << " while executing sql statement '"
-       << sqlite3_sql(stmt) << "'";
+       << sqlite3_sql(stmt.get()) << "'";
     return ss.str();
 }
 
 const int error_code(sqlite3* db) { return sqlite3_errcode(db); }
 
-const int error_code(sqlite3_stmt *statement) {
-    sqlite3 *db(sqlite3_db_handle(statement));
+const int error_code(const std::shared_ptr<sqlite3_stmt> &stmt) {
+    sqlite3 *db(sqlite3_db_handle(stmt.get()));
     return sqlite3_errcode(db);
 }
 
@@ -56,8 +56,8 @@ error::error(const int error_code):
 error::error(const std::string &msg): std::runtime_error(msg) {}
 
 
-bad_statement::bad_statement(sqlite3_stmt *stmt):
-    error(error_code(stmt)), sql_statement(sqlite3_sql(stmt)) {}
+bad_statement::bad_statement(const std::shared_ptr<sqlite3_stmt> &stmt):
+    error(error_code(stmt)), sql_statement(sqlite3_sql(stmt.get())) {}
 
 bad_statement::bad_statement(const int error_code, const std::string &sql):
     error(error_code), sql_statement(sql) {}
@@ -71,7 +71,7 @@ const char* bad_statement::what() const noexcept {
 
 bad_parameter::bad_parameter(
         const std::string &parameter,
-        sqlite3_stmt *stmt
+        const std::shared_ptr<sqlite3_stmt> &stmt
 ): bad_statement(stmt), param(parameter) {}
 
 const char *bad_parameter::what() const noexcept {
@@ -82,8 +82,10 @@ const char *bad_parameter::what() const noexcept {
 }
 
 
-bind_error::bind_error(const std::string &parameter, sqlite3_stmt *stmt):
-    bad_parameter(parameter, stmt) {}
+bind_error::bind_error(
+        const std::string &parameter,
+        const std::shared_ptr<sqlite3_stmt> &stmt
+): bad_parameter(parameter, stmt) {}
 
 const char *bind_error::what() const noexcept {
     std::stringstream ss;
@@ -98,7 +100,6 @@ out_of_range::out_of_range(): error(SQLITE_DONE) {}
 const char* out_of_range::what() const noexcept {
     return "attempt to increment beyond end of results collection";
 }
-
 
 
 } // namespace sqlite

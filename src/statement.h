@@ -39,10 +39,9 @@ static const null_t null = null_t::null;
 class statement
 {
 public:
-    statement(sqlite3_stmt *statement);
+    statement(const std::shared_ptr<sqlite3_stmt> &statement);
     statement(const statement &other) = delete;
     statement(statement &&other) = default;
-    ~statement();
 
     statement & operator=(const statement &other) = delete;
     statement & operator=(statement &&other) = default;
@@ -69,7 +68,7 @@ private:
     ) const;
 
 private:
-    sqlite3_stmt *stmt = nullptr;
+    std::shared_ptr<sqlite3_stmt> stmt;
 };
 
 } // namespace sqlite

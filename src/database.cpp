@@ -38,7 +38,7 @@ database::~database() {
 }
 
 result database::execute(const std::string &sql) {
-    return {create_statement(sql), ownership::take};
+    return create_statement(sql);
 }
 
 void database::close() {
@@ -51,14 +51,16 @@ void database::close() {
     );
 }
 
-sqlite3_stmt* database::create_statement(const std::string &sql) const {
+std::shared_ptr<sqlite3_stmt> database::create_statement(
+        const std::string &sql
+) const {
     sqlite3_stmt *stmt(nullptr);
     auto status(sqlite3_prepare_v2(
         db, sql.c_str(), sql.size(), &stmt, nullptr
     ));
     if (status != SQLITE_OK)
         throw bad_statement(status, sql);
-    return stmt;
+    return std::shared_ptr<sqlite3_stmt>(stmt, &sqlite3_finalize);
 }
 
 std::unique_ptr<statement> database::make_statement(

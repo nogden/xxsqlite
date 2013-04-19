@@ -21,6 +21,7 @@
 #ifndef SQLITE_ERROR_H
 #define SQLITE_ERROR_H
 
+#include "mem/memory.h"
 #include <stdexcept>
 
 struct sqlite3;
@@ -40,7 +41,7 @@ private:
 
 class bad_statement: public error {
 public:
-    bad_statement(sqlite3_stmt *stmt);
+    bad_statement(const std::shared_ptr<sqlite3_stmt> &stmt);
     bad_statement(const int error_code, const std::string &sql);
     std::string sql() const noexcept { return sql_statement; }
     const char* what() const noexcept;
@@ -51,7 +52,10 @@ private:
 
 class bad_parameter: public bad_statement {
 public:
-    bad_parameter(const std::string &parameter, sqlite3_stmt *stmt);
+    bad_parameter(
+            const std::string &parameter,
+            const std::shared_ptr<sqlite3_stmt> &stmt
+    );
     std::string parameter() const noexcept { return param; }
     const char* what() const noexcept;
 
@@ -61,7 +65,10 @@ private:
 
 class bind_error: public bad_parameter {
 public:
-    bind_error(const std::string &parameter, sqlite3_stmt *stmt);
+    bind_error(
+            const std::string &parameter,
+            const std::shared_ptr<sqlite3_stmt> &stmt
+    );
     const char* what() const noexcept;
 
 private:

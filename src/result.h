@@ -23,6 +23,7 @@
 
 #include "row.h"
 
+#include "mem/memory.h"
 #include <string>
 #include <cstdint>
 
@@ -30,17 +31,15 @@ struct sqlite3_stmt;
 
 namespace sqlite {
 
-enum class ownership {
-    take,
-    none
-};
-
 class result
 {
 public:
     class const_iterator {
     public:
-        const_iterator(sqlite3_stmt *statement, bool &at_end);
+        const_iterator(
+                const std::shared_ptr<sqlite3_stmt> &statement,
+                bool &at_end
+        );
         const_iterator(const const_iterator &other) = delete;
         const_iterator(const_iterator &&other) = default;
 
@@ -55,16 +54,15 @@ public:
         const row* operator->() const;
 
     private:
-        sqlite3_stmt *stmt = nullptr;
+        std::shared_ptr<sqlite3_stmt> stmt;
         bool &end_reached;
         row current_row;
     };
 
 public:
-    result(sqlite3_stmt *statement, const ownership &ownership);
+    result(const std::shared_ptr<sqlite3_stmt> &statement);
     result(const result &other) = delete;
     result(result &&other);
-    ~result();
 
     result& operator=(const result &other) = delete;
     result& operator=(result &&other);
@@ -77,11 +75,7 @@ public:
     const_iterator end() const;
 
 private:
-    void replace_members_with(result &other);
-
-private:
-    sqlite3_stmt *stmt = nullptr;
-    bool owns_statement = false;
+    std::shared_ptr<sqlite3_stmt> stmt;
     mutable bool end_reached = false;
 };
 

@@ -30,10 +30,10 @@ namespace internal {
 
 std::size_t find_parameter_index(
         const std::string &parameter,
-        sqlite3_stmt *stmt
+        const std::shared_ptr<sqlite3_stmt> &stmt
 ) {
     assert(stmt && "null sqlite3_stmt provided");
-    auto index(sqlite3_bind_parameter_index(stmt, parameter.c_str()));
+    auto index(sqlite3_bind_parameter_index(stmt.get(), parameter.c_str()));
     if (! index)
         throw bad_parameter(parameter, stmt);
     return index;
@@ -41,12 +41,12 @@ std::size_t find_parameter_index(
 
 std::size_t find_column_index(
         const std::string &column_name,
-        sqlite3_stmt *stmt
+        const std::shared_ptr<sqlite3_stmt> &stmt
 ) {
     assert(stmt && "null sqlite3_stmt provided");
-    std::size_t column_count(sqlite3_column_count(stmt));
+    std::size_t column_count(sqlite3_column_count(stmt.get()));
     for (std::size_t i(0); i < column_count; ++i) {
-        if (sqlite3_column_name(stmt, i) == column_name)
+        if (sqlite3_column_name(stmt.get(), i) == column_name)
             return i;
     }
     assert(false && "invalid column name provided");

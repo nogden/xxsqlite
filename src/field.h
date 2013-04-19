@@ -21,6 +21,7 @@
 #ifndef SQLITE_FIELD_H
 #define SQLITE_FIELD_H
 
+#include "mem/memory.h"
 #include <string>
 #include <cstdint>
 
@@ -31,7 +32,10 @@ namespace sqlite {
 
 class field {
 public:
-    field(sqlite3_stmt *statement, const std::size_t &parameter_index);
+    field(
+            const std::shared_ptr<sqlite3_stmt> &statement,
+            const std::size_t &parameter_index
+    );
 
     bool is_null() const;
     explicit operator bool() const;
@@ -40,7 +44,7 @@ public:
     T as() const;
 
 private:
-    sqlite3_stmt *stmt;
+    std::shared_ptr<sqlite3_stmt> stmt;
     const std::size_t index;
 };
 

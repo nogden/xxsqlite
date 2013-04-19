@@ -23,6 +23,7 @@
 
 #include "field.h"
 
+#include "mem/memory.h"
 #include <string>
 #include <cstdint>
 
@@ -33,7 +34,7 @@ namespace sqlite {
 class row
 {
 public:
-    row(sqlite3_stmt *statement);
+    row(const std::shared_ptr<sqlite3_stmt> &statement);
     row(const row &other) = default;
     row(row &&other) = default;
 
@@ -44,7 +45,7 @@ public:
     field operator[](const std::size_t &column_index) const;
 
 private:
-    sqlite3_stmt *stmt;
+    std::shared_ptr<sqlite3_stmt> stmt;
 };
 
 } // namespace sqlite

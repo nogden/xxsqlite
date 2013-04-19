@@ -25,7 +25,7 @@
 
 namespace sqlite {
 
-row::row(sqlite3_stmt *statement): stmt(statement) {
+row::row(const std::shared_ptr<sqlite3_stmt> &statement): stmt(statement) {
     assert(statement && "received null sqlite3_stmt");
 }
 

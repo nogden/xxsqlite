@@ -57,7 +57,7 @@ public:
 
 private:
     void close();
-    sqlite3_stmt* create_statement(const std::string &sql) const;
+    std::shared_ptr<sqlite3_stmt> create_statement(const std::string &sql) const;
 
 private:
     sqlite3 *db = nullptr;

@@ -30,9 +30,9 @@ namespace sqlite {
 
 namespace {
 
-bool step_result(sqlite3_stmt *stmt) {
+bool step_result(const std::shared_ptr<sqlite3_stmt> &stmt) {
     assert(stmt && "attempt to step null sqlite3_stmt");
-    auto status(sqlite3_step(stmt));
+    auto status(sqlite3_step(stmt.get()));
     if (status != SQLITE_ROW && status != SQLITE_DONE)
         throw bad_statement(stmt);
     return status == SQLITE_DONE;
@@ -42,42 +42,37 @@ bool iterator_end(true);
 
 }
 
-result::result(sqlite3_stmt *statement, const ownership &ownership):
-        stmt(statement), owns_statement(ownership == ownership::take) {
+result::result(const std::shared_ptr<sqlite3_stmt> &statement):
+        stmt(statement) {
     assert(statement && "null sqlite3_stmt provided");
     end_reached = step_result(stmt);
 }
 
 result::result(result &&other) {
     assert(&other != this && "attempt to move into self");
-    replace_members_with(other);
-}
-
-result::~result() {
-    if (owns_statement)
-        (void) sqlite3_finalize(stmt);
+    stmt = std::move(other.stmt);
+    end_reached = other.end_reached;
 }
 
 result& result::operator=(result &&other) {
     assert(&other != this && "attempt to move into self");
-    if (owns_statement)
-        (void) sqlite3_finalize(stmt);
-    replace_members_with(other);
+    stmt = std::move(other.stmt);
+    end_reached = other.end_reached;
     return *this;
 }
 
 std::size_t result::row_modification_count() const {
-    sqlite3 *db(sqlite3_db_handle(stmt));
+    sqlite3 *db(sqlite3_db_handle(stmt.get()));
     assert(db && "unable to aquire associated database");
-    return sqlite3_stmt_readonly(stmt) ? 0 : sqlite3_changes(db);
+    return sqlite3_stmt_readonly(stmt.get()) ? 0 : sqlite3_changes(db);
 }
 
 std::size_t result::column_count() const {
-    return sqlite3_column_count(stmt);
+    return sqlite3_column_count(stmt.get());
 }
 
 std::string result::column_name(const std::size_t &column_index) const {
-    const char *name(sqlite3_column_name(stmt, column_index));
+    const char *name(sqlite3_column_name(stmt.get(), column_index));
     return name ? name : "";
 }
 
@@ -89,23 +84,8 @@ result::const_iterator result::end() const {
     return {stmt, iterator_end};
 }
 
-void result::replace_members_with(result &other) {
-    stmt = other.stmt;
-    owns_statement = other.owns_statement;
-    other.stmt = nullptr;
-    other.owns_statement = false;
-}
-
-const char* error_message(const int status) {
-    return sqlite3_errstr(status);
-}
-
-const char* error_message(sqlite3_stmt *statement) {
-    return sqlite3_errmsg(sqlite3_db_handle(statement));
-}
-
 result::const_iterator::const_iterator(
-        sqlite3_stmt *statement,
+        const std::shared_ptr<sqlite3_stmt> &statement,
         bool &at_end
 ): stmt(statement), end_reached(at_end), current_row(statement) {
     assert(statement && "null sqlite3_stmt provided");
@@ -124,7 +104,7 @@ bool result::const_iterator::operator!=(
 }
 
 result::const_iterator& result::const_iterator::operator++() {
-    assert(! end_reached && "attempt to increment past last result");
+    assert(!end_reached && "attempt to increment past last result");
     if (end_reached)
         throw out_of_range();
     end_reached = step_result(stmt);
@@ -136,7 +116,7 @@ const row& result::const_iterator::operator*() const {
     return current_row;
 }
 
-const row* result::const_iterator::operator ->() const {
+const row* result::const_iterator::operator->() const {
     return &current_row;
 }
 

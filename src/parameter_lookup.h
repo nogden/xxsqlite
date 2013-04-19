@@ -21,6 +21,7 @@
 #ifndef SQLITE_PARAMETER_LOOKUP_H
 #define SQLITE_PARAMETER_LOOKUP_H
 
+#include "mem/memory.h"
 #include <string>
 
 struct sqlite3_stmt;
@@ -30,12 +31,12 @@ namespace internal {
 
 std::size_t find_parameter_index(
         const std::string &parameter,
-        sqlite3_stmt *stmt
+        const std::shared_ptr<sqlite3_stmt> &stmt
 );
 
 std::size_t find_column_index(
         const std::string &column_name,
-        sqlite3_stmt *stmt
+        const std::shared_ptr<sqlite3_stmt> &stmt
 );
 
 }   // namespace internal
