@@ -46,7 +46,7 @@ protected:
 };
 
 TEST_F(row, provides_corresponding_field_when_given_column_name) {
-//    sqlite::row row(make_row());
-//    sqlite::field field(row["id"]);
+    sqlite::row row(make_row());
+    EXPECT_EQ(1, row["id"].as<int>());
 //    EXPECT_EQ("test", field.as<std::string>());
 }

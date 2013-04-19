@@ -26,6 +26,8 @@
 
 namespace sqlite {
 
+class blob {};
+
 field::field(sqlite3_stmt *statement, const std::size_t &parameter_index):
     stmt(statement), index(parameter_index) {
     assert(statement && "received null sqlite3_stmt");
@@ -36,9 +38,41 @@ bool field::is_null() const {
 }
 
 field::operator bool() const {
-    return is_null();
+    return ! is_null();
 }
 
+template<>
+blob field::as<blob>() const {
+    assert(false && "blob support not implemented");
+    return blob();
+}
 
+template<>
+double field::as<double>() const {
+    if (is_null())
+        return 0.0;
+    return sqlite3_column_double(stmt, index);
+}
+
+template<>
+int field::as<int>() const {
+    if (is_null())
+        return 0;
+    return sqlite3_column_int(stmt, index);
+}
+
+template<>
+int64_t field::as<int64_t>() const {
+    if (is_null())
+        return 0;
+    return sqlite3_column_int64(stmt, index);
+}
+
+template<>
+std::string field::as<std::string>() const {
+    if (is_null())
+        return "";
+    return reinterpret_cast<const char*>(sqlite3_column_text(stmt, index));
+}
 
 }   // namespace sqlite

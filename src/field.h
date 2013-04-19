@@ -44,11 +44,6 @@ private:
     const std::size_t index;
 };
 
-//template<>
-//std::string field::as<std::string>() const {
-//    return "";//reinterpret_cast<const char*>(sqlite3_column_text(stmt, index));
-//}
-
 }   // namespace sqlite
 
 #endif // SQLITE_FIELD_H
