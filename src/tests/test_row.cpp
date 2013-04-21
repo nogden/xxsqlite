@@ -24,6 +24,9 @@
 
 #include <gtest/gtest.h>
 
+#include <string>
+#include <algorithm>
+
 class row: public testing::Test {
 protected:
     void SetUp() {
@@ -35,6 +38,8 @@ protected:
             ");"
         );
         (void) db->execute("INSERT INTO test (id, name) VALUES (1, 'test');");
+        (void) db->execute("INSERT INTO test (id, name) VALUES (2, 'sqlite');");
+        (void) db->execute("INSERT INTO test (id, name) VALUES (3, 'row');");
     }
 
     sqlite::row make_row() {
@@ -48,5 +53,25 @@ protected:
 TEST_F(row, provides_corresponding_field_when_given_column_name) {
     sqlite::row row(make_row());
     EXPECT_EQ(1, row["id"].as<int>());
-//    EXPECT_EQ("test", field.as<std::string>());
+    EXPECT_EQ("test", row["name"].as<std::string>());
+}
+
+TEST_F(row, provides_corresponding_field_when_given_column_index) {
+    sqlite::row row(make_row());
+    EXPECT_EQ(1, row[0].as<int>());
+    EXPECT_EQ("test", row[1].as<std::string>());
+}
+
+TEST_F(row, can_be_used_in_a_range_based_for_loop) {
+    sqlite::result results(db->execute("SELECT * FROM test;"));
+    for (const sqlite::row &row : results) {
+        (void) row;
+    }
+}
+
+TEST_F(row, can_be_used_in_a_std_for_each_function) {
+    sqlite::result results(db->execute("SELECT * FROM test;"));
+    std::for_each(results.begin(), results.end(), [](const sqlite::row &row) {
+        (void) row;
+    });
 }
