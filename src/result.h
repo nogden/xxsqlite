@@ -68,8 +68,6 @@ public:
     result& operator=(result &&other);
 
     std::size_t row_modification_count() const;
-    std::size_t column_count() const;
-    std::string column_name(const std::size_t &column_index) const;
 
     const_iterator begin() const;
     const_iterator end() const;

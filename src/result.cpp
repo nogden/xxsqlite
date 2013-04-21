@@ -67,15 +67,6 @@ std::size_t result::row_modification_count() const {
     return sqlite3_stmt_readonly(stmt.get()) ? 0 : sqlite3_changes(db);
 }
 
-std::size_t result::column_count() const {
-    return sqlite3_column_count(stmt.get());
-}
-
-std::string result::column_name(const std::size_t &column_index) const {
-    const char *name(sqlite3_column_name(stmt.get(), column_index));
-    return name ? name : "";
-}
-
 result::const_iterator result::begin() const {
     return {stmt, end_reached};
 }

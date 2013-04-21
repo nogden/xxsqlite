@@ -42,22 +42,6 @@ protected:
     std::unique_ptr<sqlite::database> db;
 };
 
-TEST_F(result, can_count_number_of_columns_in_results) {
-    sqlite::result results(db->execute("SELECT id FROM test;"));
-    EXPECT_EQ(1, results.column_count());
-    results = db->execute("SELECT id, name FROM test;");
-    EXPECT_EQ(2, results.column_count());
-    results = db->execute("SELECT * FROM test;");
-    EXPECT_EQ(2, results.column_count());
-}
-
-TEST_F(result, can_find_name_of_column) {
-    sqlite::result results(db->execute("SELECT id, name FROM test;"));
-    EXPECT_EQ("id", results.column_name(0));
-    EXPECT_EQ("name", results.column_name(1));
-    EXPECT_EQ("", results.column_name(2));
-}
-
 TEST_F(result, states_no_rows_modified_on_pure_query) {
     sqlite::result results(db->execute("SELECT id, name FROM test;"));
     EXPECT_EQ(0, results.row_modification_count());

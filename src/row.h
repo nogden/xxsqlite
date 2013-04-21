@@ -41,6 +41,8 @@ public:
     row& operator=(const row &other) = default;
     row& operator=(row &&other) = default;
 
+    std::size_t column_count() const;
+
     field operator[](const std::string &column_name) const;
     field operator[](const std::size_t &column_index) const;
 

@@ -21,12 +21,18 @@
 #include "row.h"
 #include "parameter_lookup.h"
 
+#include <sqlite3.h>
+
 #include <cassert>
 
 namespace sqlite {
 
 row::row(const std::shared_ptr<sqlite3_stmt> &statement): stmt(statement) {
     assert(statement && "received null sqlite3_stmt");
+}
+
+std::size_t row::column_count() const {
+    return sqlite3_column_count(stmt.get());
 }
 
 field row::operator[](const std::string &column_name) const {

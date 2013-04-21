@@ -45,3 +45,15 @@ target_link_libraries(test_row
 add_test(test_row
     test_row
 )
+
+add_executable(test_field
+    test_field.cpp
+)
+target_link_libraries(test_field
+    sqlite
+    gtest
+    gtest_main
+)
+add_test(test_field
+    test_field
+)

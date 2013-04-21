@@ -43,6 +43,11 @@ field::operator bool() const {
     return ! is_null();
 }
 
+std::string field::column_name() const {
+    const char *name(sqlite3_column_name(stmt.get(), index));
+    return name ? name : "";
+}
+
 template<>
 blob field::as<blob>() const {
     assert(false && "blob support not implemented");

@@ -40,6 +40,7 @@ public:
     bool is_null() const;
     explicit operator bool() const;
 
+    std::string column_name() const;
     template<typename T>
     T as() const;
 

@@ -18,16 +18,12 @@
   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include "database.h"
-#include "row.h"
 #include "field.h"
+#include "database.h"
 
 #include <gtest/gtest.h>
 
-#include <string>
-#include <algorithm>
-
-class row: public testing::Test {
+class field: public testing::Test {
 protected:
     void SetUp() {
         db = sqlite::make_database(sqlite::in_memory, sqlite::read_write_create);
@@ -50,37 +46,8 @@ protected:
     std::unique_ptr<sqlite::database> db;
 };
 
-TEST_F(row, can_count_number_of_columns_in_results) {
-    sqlite::row row(make_row("SELECT id FROM test;"));
-    EXPECT_EQ(1, row.column_count());
-    row = make_row("SELECT id, name FROM test;");
-    EXPECT_EQ(2, row.column_count());
-    row = make_row("SELECT * FROM test;");
-    EXPECT_EQ(2, row.column_count());
-}
-
-TEST_F(row, provides_corresponding_field_when_given_column_name) {
-    sqlite::row row(make_row("SELECT * FROM test;"));
-    EXPECT_EQ(1, row["id"].as<int>());
-    EXPECT_EQ("test", row["name"].as<std::string>());
-}
-
-TEST_F(row, provides_corresponding_field_when_given_column_index) {
-    sqlite::row row(make_row("SELECT * FROM test;"));
-    EXPECT_EQ(1, row[0].as<int>());
-    EXPECT_EQ("test", row[1].as<std::string>());
-}
-
-TEST_F(row, can_be_used_in_a_range_based_for_loop) {
-    sqlite::result results(db->execute("SELECT * FROM test;"));
-    for (const sqlite::row &row : results) {
-        (void) row;
-    }
-}
-
-TEST_F(row, can_be_used_in_a_std_for_each_function) {
-    sqlite::result results(db->execute("SELECT * FROM test;"));
-    std::for_each(results.begin(), results.end(), [](const sqlite::row &row) {
-        (void) row;
-    });
+TEST_F(field, knows_the_name_of_its_source_column) {
+    sqlite::row row(make_row("SELECT id, name FROM test;"));
+    EXPECT_EQ("id", row["id"].column_name());
+    EXPECT_EQ("name", row["name"].column_name());
 }
