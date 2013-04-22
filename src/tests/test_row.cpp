@@ -71,6 +71,16 @@ TEST_F(row, provides_corresponding_field_when_given_column_index) {
     EXPECT_EQ("test", row[1].as<std::string>());
 }
 
+TEST_F(row, throws_error_when_asked_for_non_existing_column_name) {
+    sqlite::row row(make_row("SELECT * FROM test;"));
+    EXPECT_DEBUG_DEATH(row["bad_column"], "");
+}
+
+TEST_F(row, throws_error_when_asked_for_non_existing_column_id) {
+    sqlite::row row(make_row("SELECT * FROM test;"));
+    EXPECT_DEBUG_DEATH(row[5], "");
+}
+
 TEST_F(row, can_be_used_in_a_range_based_for_loop) {
     sqlite::result results(db->execute("SELECT * FROM test;"));
     for (const sqlite::row &row : results) {

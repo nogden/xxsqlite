@@ -77,8 +77,12 @@ private:
 
 class out_of_range: public error {
 public:
-    out_of_range();
+    out_of_range(const std::size_t &index);
+    std::size_t index() const noexcept;
     const char* what() const noexcept;
+
+private:
+    std::size_t idx;
 };
 
 } // namespace sqlite

@@ -20,6 +20,7 @@
 
 #include "row.h"
 #include "parameter_lookup.h"
+#include "error.h"
 
 #include <sqlite3.h>
 
@@ -40,7 +41,14 @@ field row::operator[](const std::string &column_name) const {
 }
 
 field row::operator[](const std::size_t &column_index) const {
+    assert(is_valid_index(column_index) && "invalid column index requested");
+    if (! is_valid_index(column_index))
+        throw out_of_range(column_index);
     return {stmt, column_index};
+}
+
+bool row::is_valid_index(const std::size_t &index) const {
+    return index < column_count();
 }
 
 } // namespace sqlite

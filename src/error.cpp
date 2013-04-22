@@ -23,6 +23,7 @@
 #include <sqlite3.h>
 
 #include <sstream>
+#include <cstddef>
 #include <cassert>
 
 namespace sqlite {
@@ -94,11 +95,15 @@ const char *bind_error::what() const noexcept {
     return ss.str().c_str();
 }
 
+out_of_range::out_of_range(const std::size_t &index):
+        error(SQLITE_MISUSE), idx(index) {}
 
-out_of_range::out_of_range(): error(SQLITE_DONE) {}
+std::size_t out_of_range::index() const noexcept { return idx; }
 
 const char* out_of_range::what() const noexcept {
-    return "attempt to increment beyond end of results collection";
+    std::stringstream ss;
+    ss << "index: " << idx << " is out of range";
+    return ss.str().c_str();
 }
 
 

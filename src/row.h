@@ -47,6 +47,9 @@ public:
     field operator[](const std::size_t &column_index) const;
 
 private:
+    bool is_valid_index(const std::size_t &index) const;
+
+private:
     std::shared_ptr<sqlite3_stmt> stmt;
 };
 

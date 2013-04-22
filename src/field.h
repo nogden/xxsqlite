@@ -26,7 +26,6 @@
 #include <cstdint>
 
 struct sqlite3_stmt;
-//extern "C" const unsigned char* sqlite3_column_text(sqlite3_stmt *, int);
 
 namespace sqlite {
 

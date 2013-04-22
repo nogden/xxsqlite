@@ -96,8 +96,6 @@ bool result::const_iterator::operator!=(
 
 result::const_iterator& result::const_iterator::operator++() {
     assert(!end_reached && "attempt to increment past last result");
-    if (end_reached)
-        throw out_of_range();
     end_reached = step_result(stmt);
     current_row = stmt;
     return *this;

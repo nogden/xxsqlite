@@ -51,3 +51,17 @@ TEST_F(field, knows_the_name_of_its_source_column) {
     EXPECT_EQ("id", row["id"].column_name());
     EXPECT_EQ("name", row["name"].column_name());
 }
+
+TEST_F(field, can_be_tested_for_null) {
+    (void) db->execute("INSERT INTO test (id) VALUES (4);");
+    sqlite::row row(make_row("SELECT * FROM test WHERE id = 4;"));
+    EXPECT_TRUE(row["name"].is_null());
+    EXPECT_FALSE(row["id"].is_null());
+}
+
+TEST_F(field, supports_cxx11_explicit_bool_syntax) {
+    (void) db->execute("INSERT INTO test (id) VALUES (4);");
+    sqlite::row row(make_row("SELECT * FROM test WHERE id = 4;"));
+    EXPECT_TRUE(bool(row["id"]));
+    EXPECT_FALSE(bool(row["name"]));
+}
