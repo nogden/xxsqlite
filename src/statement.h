@@ -25,11 +25,13 @@
 
 #include <cstdint>
 
+struct sqlite3;
 struct sqlite3_stmt;
 
 namespace sqlite {
 
 class blob;
+class statement;
 
 enum class null_t {
     null
@@ -39,12 +41,16 @@ static const null_t null = null_t::null;
 class statement
 {
 public:
+    statement();
     statement(const std::shared_ptr<sqlite3_stmt> &statement);
     statement(const statement &other) = delete;
     statement(statement &&other) = default;
 
-    statement & operator=(const statement &other) = delete;
-    statement & operator=(statement &&other) = default;
+    statement& operator=(const statement &other) = delete;
+    statement& operator=(statement &&other) = default;
+
+    explicit operator bool() const;
+    bool is_valid() const;
 
     std::size_t parameter_count() const;
     void bind(const std::string &parameter, const sqlite::blob &value);
@@ -55,8 +61,6 @@ public:
     void bind(const std::string &parameter, const std::string &value);
     void clear_bindings();
 
-    result execute();
-
     friend std::ostream& operator<<(
         std::ostream &os, const statement &statement
     );
@@ -66,6 +70,7 @@ private:
             const int status,
             const std::string &parameter
     ) const;
+    friend result make_result(const statement &statement);
 
 private:
     std::shared_ptr<sqlite3_stmt> stmt;

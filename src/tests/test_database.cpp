@@ -26,44 +26,32 @@
 
 #include "mem/memory.h"
 
-class database: public testing::Test {
-protected:
-    void SetUp() {
-        db = sqlite::make_database(sqlite::in_memory, sqlite::read_write_create);
-    }
-
-    std::unique_ptr<sqlite::database> db;
-};
-
-TEST_F(database, asserts_when_created_with_null_pointer) {
-    EXPECT_DEATH(
-        sqlite::database database(nullptr),
-        ""
-    );
-}
-
-TEST_F(database, executes_valid_sql_sucessfully) {
+TEST(database, executes_valid_sql_sucessfully) {
+    sqlite::database db(sqlite::in_memory, sqlite::read_write_create);
     EXPECT_NO_THROW({
-        (void) db->execute("CREATE TABLE test (id INTEGER PRIMARY KEY);");
-        (void) db->execute("SELECT * FROM test;");
+        (void) db.execute("CREATE TABLE test (id INTEGER PRIMARY KEY);");
+        (void) db.execute("SELECT * FROM test;");
     });
 }
 
-TEST_F(database, throws_database_error_when_executing_invalid_sql) {
-    EXPECT_THROW(db->execute("INVALID STATEMENT"), sqlite::bad_statement);
+TEST(database, throws_database_error_when_executing_invalid_sql) {
+    sqlite::database db(sqlite::in_memory, sqlite::read_write_create);
+    EXPECT_THROW(db.execute("INVALID STATEMENT"), sqlite::bad_statement);
 }
 
-TEST_F(database, returns_prepared_statement_when_given_valid_sql) {
+TEST(database, returns_prepared_statement_when_given_valid_sql) {
+    sqlite::database db(sqlite::in_memory, sqlite::read_write_create);
     EXPECT_NO_THROW(
-        auto statement(db->make_statement(
+        auto statement(db.prepare_statement(
             "CREATE TABLE test (id INTEGER PRIMARY KEY);"
         ));
     );
 }
 
-TEST_F(database, throws_database_error_when_given_invalid_sql) {
+TEST(database, throws_database_error_when_given_invalid_sql) {
+    sqlite::database db(sqlite::in_memory, sqlite::read_write_create);
     EXPECT_THROW(
-        db->make_statement("INVALID STATEMENT"),
+        db.prepare_statement("INVALID STATEMENT"),
         sqlite::bad_statement
     );
 }

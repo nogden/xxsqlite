@@ -29,8 +29,12 @@
 
 namespace sqlite {
 
-database::database(sqlite3 *connection): db(connection) {
-    assert(connection && "attempt to create database with null connection");
+database::database(const std::string &path, const access_mode &permissions) {
+    auto status(sqlite3_open_v2(path.c_str(), &db, permissions, nullptr));
+    if (status != SQLITE_OK) {
+        sqlite3_close_v2(db);
+        throw error(status);
+    }
 }
 
 database::~database() {
@@ -39,6 +43,10 @@ database::~database() {
 
 result database::execute(const std::string &sql) {
     return create_statement(sql);
+}
+
+result database::execute(const statement &statement) {
+    return make_result(statement);
 }
 
 void database::close() {
@@ -63,23 +71,10 @@ std::shared_ptr<sqlite3_stmt> database::create_statement(
     return std::shared_ptr<sqlite3_stmt>(stmt, &sqlite3_finalize);
 }
 
-std::unique_ptr<statement> database::make_statement(
+statement database::prepare_statement(
         const std::string &sql
 ) const {
-    return std::make_unique<statement>(create_statement(sql));
-}
-
-std::unique_ptr<database> make_database(
-        const std::string &path,
-        const access_mode &permissions
-) {
-    sqlite3 *db;
-    auto status(sqlite3_open_v2(path.c_str(), &db, permissions, nullptr));
-    if (status != SQLITE_OK) {
-        sqlite3_close_v2(db);
-        throw error(status);
-    }
-    return std::make_unique<database>(db);
+    return create_statement(sql);
 }
 
 std::ostream& operator<<(std::ostream &os, const database &db) {

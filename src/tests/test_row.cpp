@@ -30,7 +30,9 @@
 class row: public testing::Test {
 protected:
     void SetUp() {
-        db = sqlite::make_database(sqlite::in_memory, sqlite::read_write_create);
+        db = std::make_unique<sqlite::database>(
+            sqlite::in_memory, sqlite::read_write_create
+        );
         (void) db->execute(
             "CREATE TABLE test("
             "    id INTEGER PRIMARY KEY AUTOINCREMENT,"

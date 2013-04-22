@@ -22,6 +22,7 @@
 #define SQLITE_DATABASE_H
 
 #include "statement.h"
+#include "result.h"
 
 #include "mem/memory.h"
 #include <string>
@@ -41,7 +42,7 @@ enum access_mode {
 
 class database {
 public:
-    database(sqlite3 *connection);
+    database(const std::string &path, const access_mode &permissions);
     database(const database &other) = delete;
     database(database &&other) = default;
     ~database();
@@ -50,8 +51,9 @@ public:
     database& operator=(database &&other) = default;
 
     result execute(const std::string &sql);
+    result execute(const statement &statement);
 
-    std::unique_ptr<statement> make_statement(const std::string &sql) const;
+    statement prepare_statement(const std::string &sql) const;
 
     friend std::ostream& operator<<(std::ostream &stream, const database &db);
 
@@ -62,11 +64,6 @@ private:
 private:
     sqlite3 *db = nullptr;
 };
-
-std::unique_ptr<database> make_database(
-        const std::string &path,
-        const access_mode &permissions
-);
 
 } // namespace sqlite
 
