@@ -47,43 +47,43 @@ protected:
 };
 
 TEST_F(statement, binds_any_parameter_when_name_is_present_in_sql_string) {
-    auto statement(db->prepare_statement("SELECT * FROM test WHERE id = @param;"));
-    EXPECT_NO_THROW(statement.bind("@param", static_cast<double>(0.0)));
-    EXPECT_NO_THROW(statement.bind("@param", static_cast<int>(0)));
-    EXPECT_NO_THROW(statement.bind("@param", static_cast<int64_t>(0)));
-    EXPECT_NO_THROW(statement.bind("@param", sqlite::null));
-    EXPECT_NO_THROW(statement.bind("@param", "string"));
+    auto statement(db->prepare_statement("SELECT * FROM test WHERE id = :param;"));
+    EXPECT_NO_THROW(statement.bind(":param", static_cast<double>(0.0)));
+    EXPECT_NO_THROW(statement.bind(":param", static_cast<int>(0)));
+    EXPECT_NO_THROW(statement.bind(":param", static_cast<int64_t>(0)));
+    EXPECT_NO_THROW(statement.bind(":param", sqlite::null));
+    EXPECT_NO_THROW(statement.bind(":param", "string"));
 }
 
 TEST_F(statement, throws_database_error_when_binding_to_absent_parameter) {
     sqlite::statement statement(db->prepare_statement("SELECT * FROM test;"));
     EXPECT_THROW(
-        statement.bind("@param", static_cast<double>(0.0)),
+        statement.bind(":param", static_cast<double>(0.0)),
         sqlite::bad_parameter
     );
     EXPECT_THROW(
-        statement.bind("@param", static_cast<int>(0)),
+        statement.bind(":param", static_cast<int>(0)),
         sqlite::bad_parameter
     );
     EXPECT_THROW(
-        statement.bind("@param", static_cast<int64_t>(0)),
+        statement.bind(":param", static_cast<int64_t>(0)),
         sqlite::bad_parameter
     );
     EXPECT_THROW(
-        statement.bind("@param", sqlite::null),
+        statement.bind(":param", sqlite::null),
         sqlite::bad_parameter
     );
     EXPECT_THROW(
-        statement.bind("@param", "string"),
+        statement.bind(":param", "string"),
         sqlite::bad_parameter
     );
 }
 
 TEST_F(statement, can_count_its_parameters) {
-    auto statement(db->prepare_statement("SELECT * FROM test WHERE id = @id;"));
+    auto statement(db->prepare_statement("SELECT * FROM test WHERE id = :id;"));
     EXPECT_EQ(1, statement.parameter_count());
     statement = db->prepare_statement(
-        "SELECT * FROM test WHERE id = @id AND name = @name;"
+        "SELECT * FROM test WHERE id = :id AND name = :name;"
     );
     EXPECT_EQ(2, statement.parameter_count());
 }
