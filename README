@@ -1,0 +1,27 @@
+++sqlite
+--------
+
+++sqlite is thin C++ wrapper around the sqlite3 database library with a focus on
+using the C++11 feature set.
+
+Basic Example:
+
+
+Prepared statements:
+
+
+Simple scalar queries:
+
+
+Stl compatible iterators:
+
+
+Transactions:
+
+
+
+++sqlite...
+...is entirely stack based, making it extremely lightweight.
+...has a comprehensive set of unit tests to ensure its quality.
+...is released under the Apache 2.0 license allowing use in both proprietary and
+   open-source software.
