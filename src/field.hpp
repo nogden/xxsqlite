@@ -14,12 +14,10 @@
    limitations under the License.
 */
 
-#ifndef SQLITE_ROW_H
-#define SQLITE_ROW_H
+#ifndef SQLITE_FIELD_H
+#define SQLITE_FIELD_H
 
-#include "field.h"
-
-#include "mem/memory.h"
+#include "mem/memory.hpp"
 #include <string>
 #include <cstdint>
 
@@ -27,28 +25,25 @@ struct sqlite3_stmt;
 
 namespace sqlite {
 
-class row
-{
+class field {
 public:
-    row(const std::shared_ptr<sqlite3_stmt> &statement);
-    row(const row &other) = default;
-    row(row &&other) = default;
+    field(
+            const std::shared_ptr<sqlite3_stmt> &statement,
+            const std::size_t &parameter_index
+    );
 
-    row& operator=(const row &other) = default;
-    row& operator=(row &&other) = default;
+    bool is_null() const;
+    explicit operator bool() const;
 
-    std::size_t column_count() const;
-
-    field operator[](const std::string &column_name) const;
-    field operator[](const std::size_t &column_index) const;
-
-private:
-    bool is_valid_index(const std::size_t &index) const;
+    std::string column_name() const;
+    template<typename T>
+    T as() const;
 
 private:
     std::shared_ptr<sqlite3_stmt> stmt;
+    const std::size_t index;
 };
 
-} // namespace sqlite
+}   // namespace sqlite
 
-#endif // SQLITE_ROW_H
+#endif // SQLITE_FIELD_H

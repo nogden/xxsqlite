@@ -17,9 +17,9 @@
 #ifndef SQLITE_RESULT_H
 #define SQLITE_RESULT_H
 
-#include "row.h"
+#include "row.hpp"
 
-#include "mem/memory.h"
+#include "mem/memory.hpp"
 #include <string>
 #include <cstdint>
 

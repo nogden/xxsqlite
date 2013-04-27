@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-#include "row.h"
-#include "parameter_lookup.h"
-#include "error.h"
+#include "row.hpp"
+#include "parameter_lookup.hpp"
+#include "error.hpp"
 
 #include <sqlite3.h>
 

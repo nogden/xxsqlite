@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-#include "error.h"
+#include "error.hpp"
 
 #include <sqlite3.h>
 

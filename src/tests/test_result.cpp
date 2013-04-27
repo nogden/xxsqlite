@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-#include "database.h"
-#include "result.h"
-#include "error.h"
+#include "database.hpp"
+#include "result.hpp"
+#include "error.hpp"
 
 #include <gtest/gtest.h>
 

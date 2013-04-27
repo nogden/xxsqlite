@@ -14,28 +14,41 @@
    limitations under the License.
 */
 
-#ifndef SQLITE_PARAMETER_LOOKUP_H
-#define SQLITE_PARAMETER_LOOKUP_H
+#ifndef SQLITE_ROW_H
+#define SQLITE_ROW_H
 
-#include "mem/memory.h"
+#include "field.hpp"
+
+#include "mem/memory.hpp"
 #include <string>
+#include <cstdint>
 
 struct sqlite3_stmt;
 
 namespace sqlite {
-namespace internal {
 
-std::size_t find_parameter_index(
-        const std::string &parameter,
-        const std::shared_ptr<sqlite3_stmt> &stmt
-);
+class row
+{
+public:
+    row(const std::shared_ptr<sqlite3_stmt> &statement);
+    row(const row &other) = default;
+    row(row &&other) = default;
 
-std::size_t find_column_index(
-        const std::string &column_name,
-        const std::shared_ptr<sqlite3_stmt> &stmt
-);
+    row& operator=(const row &other) = default;
+    row& operator=(row &&other) = default;
 
-}   // namespace internal
-}   // namespace sqlite
+    std::size_t column_count() const;
 
-#endif // SQLITE_PARAMETER_LOOKUP_H
+    field operator[](const std::string &column_name) const;
+    field operator[](const std::size_t &column_index) const;
+
+private:
+    bool is_valid_index(const std::size_t &index) const;
+
+private:
+    std::shared_ptr<sqlite3_stmt> stmt;
+};
+
+} // namespace sqlite
+
+#endif // SQLITE_ROW_H

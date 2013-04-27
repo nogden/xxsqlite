@@ -14,12 +14,12 @@
    limitations under the License.
 */
 
-#include "field.h"
-#include "database.h"
+#include "field.hpp"
+#include "database.hpp"
 
 #include <gtest/gtest.h>
 
-#include "mem/memory.h"
+#include "mem/memory.hpp"
 
 class field: public testing::Test {
 protected:

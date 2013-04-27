@@ -1,19 +1,19 @@
 # Builds the sqlite wrapper library
 
 set(SQLITE_SOURCE_FILES
-    database.h
+    database.hpp
     database.cpp
-    error.h
+    error.hpp
     error.cpp
-    field.h
+    field.hpp
     field.cpp
-    parameter_lookup.h
+    parameter_lookup.hpp
     parameter_lookup.cpp
-    result.h
+    result.hpp
     result.cpp
-    row.h
+    row.hpp
     row.cpp
-    statement.h
+    statement.hpp
     statement.cpp
 )
 

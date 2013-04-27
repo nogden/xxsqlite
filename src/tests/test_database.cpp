@@ -14,13 +14,13 @@
    limitations under the License.
 */
 
-#include "database.h"
-#include "statement.h"
-#include "error.h"
+#include "database.hpp"
+#include "statement.hpp"
+#include "error.hpp"
 
 #include <gtest/gtest.h>
 
-#include "mem/memory.h"
+#include "mem/memory.hpp"
 
 TEST(database, executes_valid_sql_sucessfully) {
     sqlite::database db(sqlite::in_memory, sqlite::read_write_create);

@@ -14,36 +14,28 @@
    limitations under the License.
 */
 
-#ifndef SQLITE_FIELD_H
-#define SQLITE_FIELD_H
+#ifndef SQLITE_PARAMETER_LOOKUP_H
+#define SQLITE_PARAMETER_LOOKUP_H
 
-#include "mem/memory.h"
+#include "mem/memory.hpp"
 #include <string>
-#include <cstdint>
 
 struct sqlite3_stmt;
 
 namespace sqlite {
+namespace internal {
 
-class field {
-public:
-    field(
-            const std::shared_ptr<sqlite3_stmt> &statement,
-            const std::size_t &parameter_index
-    );
+std::size_t find_parameter_index(
+        const std::string &parameter,
+        const std::shared_ptr<sqlite3_stmt> &stmt
+);
 
-    bool is_null() const;
-    explicit operator bool() const;
+std::size_t find_column_index(
+        const std::string &column_name,
+        const std::shared_ptr<sqlite3_stmt> &stmt
+);
 
-    std::string column_name() const;
-    template<typename T>
-    T as() const;
-
-private:
-    std::shared_ptr<sqlite3_stmt> stmt;
-    const std::size_t index;
-};
-
+}   // namespace internal
 }   // namespace sqlite
 
-#endif // SQLITE_FIELD_H
+#endif // SQLITE_PARAMETER_LOOKUP_H

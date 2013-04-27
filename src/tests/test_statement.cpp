@@ -14,15 +14,15 @@
    limitations under the License.
 */
 
-#include "database.h"
-#include "statement.h"
-#include "error.h"
+#include "database.hpp"
+#include "statement.hpp"
+#include "error.hpp"
 
 #include <sqlite3.h>
 
 #include <gtest/gtest.h>
 
-#include "mem/memory.h"
+#include "mem/memory.hpp"
 
 class statement: public testing::Test {
 protected:

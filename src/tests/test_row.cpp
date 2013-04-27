@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-#include "database.h"
-#include "row.h"
-#include "field.h"
+#include "database.hpp"
+#include "row.hpp"
+#include "field.hpp"
 
 #include <gtest/gtest.h>
 

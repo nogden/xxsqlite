@@ -17,10 +17,10 @@
 #ifndef SQLITE_DATABASE_H
 #define SQLITE_DATABASE_H
 
-#include "statement.h"
-#include "result.h"
+#include "statement.hpp"
+#include "result.hpp"
 
-#include "mem/memory.h"
+#include "mem/memory.hpp"
 #include <string>
 
 struct sqlite3;

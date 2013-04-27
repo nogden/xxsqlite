@@ -17,7 +17,7 @@
 #ifndef SQLITE_STATEMENT_H
 #define SQLITE_STATEMENT_H
 
-#include "result.h"
+#include "result.hpp"
 
 #include <cstdint>
 
