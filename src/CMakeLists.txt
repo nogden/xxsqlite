@@ -7,8 +7,6 @@ set(SQLITE_SOURCE_FILES
     error.cpp
     field.hpp
     field.cpp
-    parameter_lookup.hpp
-    parameter_lookup.cpp
     result.hpp
     result.cpp
     row.hpp

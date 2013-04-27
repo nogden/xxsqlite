@@ -15,7 +15,6 @@
 */
 
 #include "row.hpp"
-#include "parameter_lookup.hpp"
 #include "error.hpp"
 
 #include <sqlite3.h>
@@ -23,6 +22,24 @@
 #include <cassert>
 
 namespace sqlite {
+
+namespace {
+
+std::size_t find_column_index(
+        const std::string &column_name,
+        const std::shared_ptr<sqlite3_stmt> &stmt
+) {
+    assert(stmt && "null sqlite3_stmt provided");
+    std::size_t column_count(sqlite3_column_count(stmt.get()));
+    for (std::size_t i(0); i < column_count; ++i) {
+        if (sqlite3_column_name(stmt.get(), i) == column_name)
+            return i;
+    }
+    assert(false && "invalid column name provided");
+    throw error("invalid column name: " + column_name);
+}
+
+}
 
 row::row(const std::shared_ptr<sqlite3_stmt> &statement): stmt(statement) {
     assert(statement && "received null sqlite3_stmt");
@@ -33,7 +50,7 @@ std::size_t row::column_count() const {
 }
 
 field row::operator[](const std::string &column_name) const {
-    return {stmt, internal::find_column_index(column_name, stmt)};
+    return {stmt, find_column_index(column_name, stmt)};
 }
 
 field row::operator[](const std::size_t &column_index) const {
