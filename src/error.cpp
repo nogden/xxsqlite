@@ -65,42 +65,4 @@ const char* bad_statement::what() const noexcept {
     return ss.str().c_str();
 }
 
-
-bad_parameter::bad_parameter(
-        const std::string &parameter,
-        const std::shared_ptr<sqlite3_stmt> &stmt
-): bad_statement(stmt), param(parameter) {}
-
-const char *bad_parameter::what() const noexcept {
-    std::stringstream ss;
-    ss << "unknown parameter '" << param << "' in sql statement '"
-       << sql() << "'";
-    return ss.str().c_str();
-}
-
-
-bind_error::bind_error(
-        const std::string &parameter,
-        const std::shared_ptr<sqlite3_stmt> &stmt
-): bad_parameter(parameter, stmt) {}
-
-const char *bind_error::what() const noexcept {
-    std::stringstream ss;
-    ss << error::what() << " while binding parameter '" << parameter()
-       << "' in sql statement '" << sql() << "'";
-    return ss.str().c_str();
-}
-
-out_of_range::out_of_range(const std::size_t &index):
-        error(SQLITE_MISUSE), idx(index) {}
-
-std::size_t out_of_range::index() const noexcept { return idx; }
-
-const char* out_of_range::what() const noexcept {
-    std::stringstream ss;
-    ss << "index: " << idx << " is out of range";
-    return ss.str().c_str();
-}
-
-
 } // namespace sqlite

@@ -46,41 +46,6 @@ private:
     std::string sql_statement = "";
 };
 
-class bad_parameter: public bad_statement {
-public:
-    bad_parameter(
-            const std::string &parameter,
-            const std::shared_ptr<sqlite3_stmt> &stmt
-    );
-    std::string parameter() const noexcept { return param; }
-    const char* what() const noexcept;
-
-private:
-    std::string param;
-};
-
-class bind_error: public bad_parameter {
-public:
-    bind_error(
-            const std::string &parameter,
-            const std::shared_ptr<sqlite3_stmt> &stmt
-    );
-    const char* what() const noexcept;
-
-private:
-    std::size_t index;
-};
-
-class out_of_range: public error {
-public:
-    out_of_range(const std::size_t &index);
-    std::size_t index() const noexcept;
-    const char* what() const noexcept;
-
-private:
-    std::size_t idx;
-};
-
 } // namespace sqlite
 
 #endif // SQLITE_ERROR_H

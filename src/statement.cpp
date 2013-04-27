@@ -40,6 +40,30 @@ std::size_t find_parameter_index(
 
 }
 
+bad_parameter::bad_parameter(
+        const std::string &parameter,
+        const std::shared_ptr<sqlite3_stmt> &stmt
+): bad_statement(stmt), param(parameter) {}
+
+const char *bad_parameter::what() const noexcept {
+    std::stringstream ss;
+    ss << "unknown parameter '" << param << "' in sql statement '"
+       << sql() << "'";
+    return ss.str().c_str();
+}
+
+bind_error::bind_error(
+        const std::string &parameter,
+        const std::shared_ptr<sqlite3_stmt> &stmt
+): bad_parameter(parameter, stmt) {}
+
+const char *bind_error::what() const noexcept {
+    std::stringstream ss;
+    ss << error::what() << " while binding parameter '" << parameter()
+       << "' in sql statement '" << sql() << "'";
+    return ss.str().c_str();
+}
+
 statement::statement() {}
 
 statement::statement(const std::shared_ptr<sqlite3_stmt> &statement):

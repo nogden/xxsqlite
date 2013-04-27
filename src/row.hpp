@@ -18,6 +18,7 @@
 #define SQLITE_ROW_H
 
 #include "field.hpp"
+#include "error.hpp"
 
 #include "mem/memory.hpp"
 #include <string>
@@ -26,6 +27,16 @@
 struct sqlite3_stmt;
 
 namespace sqlite {
+
+class out_of_range: public error {
+public:
+    out_of_range(const std::size_t &index);
+    std::size_t index() const noexcept;
+    const char* what() const noexcept;
+
+private:
+    std::size_t idx;
+};
 
 class row
 {

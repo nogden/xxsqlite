@@ -15,10 +15,10 @@
 */
 
 #include "row.hpp"
-#include "error.hpp"
 
 #include <sqlite3.h>
 
+#include <sstream>
 #include <cassert>
 
 namespace sqlite {
@@ -39,6 +39,17 @@ std::size_t find_column_index(
     throw error("invalid column name: " + column_name);
 }
 
+}
+
+out_of_range::out_of_range(const std::size_t &index):
+        error(SQLITE_MISUSE), idx(index) {}
+
+std::size_t out_of_range::index() const noexcept { return idx; }
+
+const char* out_of_range::what() const noexcept {
+    std::stringstream ss;
+    ss << "index: " << idx << " is out of range";
+    return ss.str().c_str();
 }
 
 row::row(const std::shared_ptr<sqlite3_stmt> &statement): stmt(statement) {
