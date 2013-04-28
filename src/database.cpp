@@ -34,6 +34,8 @@ void throw_on_error(const int status, sqlite3 *db) {
     }
 }
 
+}   // namespace
+
 std::ostream& operator<<(std::ostream &os, const access_mode &mode) {
     os << "mode=";
     switch (mode) {
@@ -52,8 +54,6 @@ std::ostream& operator<<(std::ostream &os, const cache_type &cache) {
     }
     return os;
 }
-
-}   // namespace
 
 database::database(
         const std::string &path,
