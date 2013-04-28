@@ -39,19 +39,9 @@ std::size_t find_parameter_index(
 
 }
 
-statement::statement() {}
-
 statement::statement(const std::shared_ptr<sqlite3_stmt> &statement):
         stmt(statement) {
     assert(statement && "attempt to create statement with null sqlite3_stmt");
-}
-
-statement::operator bool() const {
-    return bool(stmt);
-}
-
-bool statement::is_valid() const {
-    return bool(stmt);
 }
 
 void statement::bind(const std::string &parameter, const blob &value) {
@@ -114,7 +104,6 @@ std::ostream& operator<<(std::ostream &os, const statement &statement) {
 }
 
 result make_result(const statement &statement) {
-    assert(statement && "execute() called with null sqlite::statement");
     (void) sqlite3_reset(statement.stmt.get());
     return statement.stmt;
 }

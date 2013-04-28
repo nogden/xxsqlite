@@ -37,16 +37,12 @@ static const null_t null = null_t::null;
 class statement
 {
 public:
-    statement();
     statement(const std::shared_ptr<sqlite3_stmt> &statement);
     statement(const statement &other) = delete;
     statement(statement &&other) = default;
 
     statement& operator=(const statement &other) = delete;
     statement& operator=(statement &&other) = default;
-
-    explicit operator bool() const;
-    bool is_valid() const;
 
     std::size_t parameter_count() const;
     void bind(const std::string &parameter, const sqlite::blob &value);

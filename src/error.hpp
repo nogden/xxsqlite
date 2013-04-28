@@ -31,7 +31,7 @@ public:
     error(const int error_code, const std::string &msg = std::string());
     error(const std::string &msg);
     error(
-            const std::shared_ptr<sqlite3_stmt> stmt,
+            const std::shared_ptr<sqlite3_stmt> &stmt,
             const std::string &msg = std::string()
     );
 
