@@ -29,9 +29,13 @@ namespace {
 bool step_result(const std::shared_ptr<sqlite3_stmt> &stmt) {
     assert(stmt && "attempt to step null sqlite3_stmt");
     auto status(sqlite3_step(stmt.get()));
-    if (status != SQLITE_ROW && status != SQLITE_DONE)
-        throw bad_statement(stmt);
-    return status == SQLITE_DONE;
+    switch (status) {
+    case SQLITE_DONE:   return true;
+    case SQLITE_ROW:    return false;
+    case SQLITE_LOCKED: // fall-through
+    case SQLITE_BUSY:   throw transaction_failed(status);
+    default:            throw bad_statement(stmt);
+    }
 }
 
 bool iterator_end(true);

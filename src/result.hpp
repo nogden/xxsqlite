@@ -18,14 +18,20 @@
 #define SQLITE_RESULT_H
 
 #include "row.hpp"
+#include "error.hpp"
 
 #include "mem/memory.hpp"
 #include <string>
-#include <cstdint>
+#include <cstddef>
 
 struct sqlite3_stmt;
 
 namespace sqlite {
+
+class transaction_failed: public error {
+public:
+    transaction_failed(const int status): error(status) {}
+};
 
 class result
 {

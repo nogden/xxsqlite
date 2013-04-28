@@ -25,12 +25,58 @@
 
 namespace sqlite {
 
-database::database(const std::string &path, const access_mode &permissions) {
-    auto status(sqlite3_open_v2(path.c_str(), &db, permissions, nullptr));
+namespace {
+
+void throw_on_error(const int status, sqlite3 *db) {
     if (status != SQLITE_OK) {
         sqlite3_close_v2(db);
         throw error(status);
     }
+}
+
+std::ostream& operator<<(std::ostream &os, const access_mode &mode) {
+    os << "mode=";
+    switch (mode) {
+    case read_only:         os << "ro";  break;
+    case read_write:        os << "rw";  break;
+    case read_write_create: os << "rwc"; break;
+    }
+    return os;
+}
+
+std::ostream& operator<<(std::ostream &os, const cache_type &cache) {
+    os << "cache=";
+    switch (cache) {
+    case private_cache: os << "private"; break;
+    case shared_cache:  os << "shared";  break;
+    }
+    return os;
+}
+
+}   // namespace
+
+database::database(
+        const std::string &path,
+        const access_mode &permissions,
+        const cache_type &visibility
+) {
+    int perms(permissions | visibility);
+    throw_on_error(sqlite3_open_v2(path.c_str(), &db, perms, nullptr), db);
+}
+
+database::database(
+        const special_t &,
+        const access_mode &permissions,
+        const cache_type &visibility
+) {
+    std::stringstream uri;
+    uri << "file::memory:?" << permissions << "&" << visibility;
+    std::string path(uri.str());
+    throw_on_error(
+        sqlite3_open_v2(
+            path.c_str(), &db, permissions | SQLITE_OPEN_URI, nullptr
+        ), db
+    );
 }
 
 database::~database() {
@@ -77,6 +123,18 @@ std::ostream& operator<<(std::ostream &os, const database &db) {
     os << "database:\n"
           "  open: " << ((db.db == nullptr) ? "false" : "true") << "\n";
     return os;
+}
+
+void as_transaction(
+        database &db,
+        const std::function<void(database &)> &operations
+) try {
+    db.execute("BEGIN;");
+    operations(db);
+    db.execute("COMMIT;");
+} catch (...) {
+    db.execute("ROLLBACK;");
+    throw;
 }
 
 } // namespace sqlite

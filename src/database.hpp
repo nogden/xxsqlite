@@ -22,13 +22,18 @@
 
 #include "mem/memory.hpp"
 #include <string>
+#include <functional>
 
 struct sqlite3;
 
 namespace sqlite {
 
 static char const *temporary = "";
-static char const *in_memory = ":memory:";
+
+enum class special_t {
+    in_memory
+};
+static const special_t in_memory = special_t::in_memory;
 
 enum access_mode {
     read_only         = 0x01,
@@ -36,9 +41,23 @@ enum access_mode {
     read_write_create = 0x06
 };
 
+enum cache_type {
+    shared_cache  = 0x00020000,
+    private_cache = 0x00040000
+};
+
 class database {
 public:
-    database(const std::string &path, const access_mode &permissions);
+    database(
+            const std::string &path,
+            const access_mode &permissions,
+            const cache_type &visibility = private_cache
+    );
+    database(
+            const special_t &in_memory,
+            const access_mode &permissions,
+            const cache_type &visibility = private_cache
+    );
     database(const database &other) = delete;
     database(database &&other) = default;
     ~database();
@@ -60,6 +79,11 @@ private:
 private:
     sqlite3 *db = nullptr;
 };
+
+void as_transaction(
+        database &db,
+        const std::function<void(database &)> &operations
+);
 
 } // namespace sqlite
 

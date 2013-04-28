@@ -20,7 +20,7 @@
 #include "result.hpp"
 #include "error.hpp"
 
-#include <cstdint>
+#include <cstddef>
 
 struct sqlite3;
 struct sqlite3_stmt;

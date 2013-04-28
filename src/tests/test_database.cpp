@@ -21,6 +21,7 @@
 #include <gtest/gtest.h>
 
 #include "mem/memory.hpp"
+#include <thread>
 
 TEST(database, executes_valid_sql_sucessfully) {
     sqlite::database db(sqlite::in_memory, sqlite::read_write_create);
@@ -44,10 +45,39 @@ TEST(database, returns_prepared_statement_when_given_valid_sql) {
     );
 }
 
-TEST(database, throws_database_error_when_given_invalid_sql) {
+TEST(database, throws_database_error_when_preparing_invalid_sql) {
     sqlite::database db(sqlite::in_memory, sqlite::read_write_create);
     EXPECT_THROW(
-        db.prepare_statement("INVALID STATEMENT"),
+        (void) db.prepare_statement("INVALID STATEMENT"),
         sqlite::bad_statement
+    );
+}
+
+TEST(database, can_be_used_to_execute_transactions) {
+    sqlite::database db(sqlite::in_memory, sqlite::read_write_create);
+    (void) db.execute("CREATE TABLE test (id INTEGER, value TEXT);");
+    (void) db.execute("INSERT INTO test (id, value) VALUES (1, '');");
+    EXPECT_NO_THROW(
+        sqlite::as_transaction(db, [](sqlite::database &db) {
+            (void) db.execute("UPDATE test SET value = 'new' WHERE id = 1;");
+        });
+    );
+}
+
+TEST(database, throws_if_an_external_modification_occurs_during_a_transaction) {
+    sqlite::database db(
+        sqlite::in_memory, sqlite::read_write_create, sqlite::shared_cache
+    );
+    (void) db.execute("CREATE TABLE test (id INTEGER, value TEXT);");
+    (void) db.execute("INSERT INTO test (id, value) VALUES (1, '');");
+    EXPECT_THROW(
+        sqlite::as_transaction(db, [](sqlite::database &db) {
+            (void) db.execute("UPDATE test SET value = 'one' WHERE id = 1;");
+            sqlite::database db2(
+                sqlite::in_memory, sqlite::read_write, sqlite::shared_cache
+            );
+            (void) db2.execute("UPDATE test SET value = 'two' WHERE id = 1;");
+            (void) db.execute("UPDATE test SET value = 'one' WHERE id = 1;");
+        }), sqlite::transaction_failed
     );
 }

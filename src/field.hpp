@@ -19,7 +19,7 @@
 
 #include "mem/memory.hpp"
 #include <string>
-#include <cstdint>
+#include <cstddef>
 
 struct sqlite3_stmt;
 
