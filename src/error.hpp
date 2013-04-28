@@ -17,7 +17,8 @@
 #ifndef SQLITE_ERROR_H
 #define SQLITE_ERROR_H
 
-#include "mem/memory.hpp"
+#include <memory>
+#include <string>
 #include <stdexcept>
 
 struct sqlite3;

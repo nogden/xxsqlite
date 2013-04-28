@@ -20,11 +20,13 @@
 #include "statement.hpp"
 #include "result.hpp"
 
-#include "mem/memory.hpp"
-#include <string>
-#include <functional>
+#include <memory>
 
 struct sqlite3;
+
+namespace std {
+    template<class T> class function;
+}   // namespace std
 
 namespace sqlite {
 

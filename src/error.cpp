@@ -19,7 +19,6 @@
 #include <sqlite3.h>
 
 #include <sstream>
-#include <cstddef>
 #include <cassert>
 
 namespace sqlite {

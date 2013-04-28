@@ -18,7 +18,6 @@
 #define SQLITE_STATEMENT_H
 
 #include "result.hpp"
-#include "error.hpp"
 
 #include <cstddef>
 

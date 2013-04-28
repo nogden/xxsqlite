@@ -15,11 +15,9 @@
 */
 
 #include "result.hpp"
-#include "error.hpp"
 
 #include <sqlite3.h>
 
-#include <sstream>
 #include <cassert>
 
 namespace sqlite {

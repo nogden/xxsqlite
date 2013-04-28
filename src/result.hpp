@@ -20,8 +20,7 @@
 #include "row.hpp"
 #include "error.hpp"
 
-#include "mem/memory.hpp"
-#include <string>
+#include <memory>
 #include <cstddef>
 
 struct sqlite3_stmt;

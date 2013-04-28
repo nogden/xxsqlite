@@ -20,6 +20,8 @@
 
 #include <gtest/gtest.h>
 
+#include <mem/memory.hpp>
+
 class result: public testing::Test {
 protected:
     void SetUp() {

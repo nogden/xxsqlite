@@ -22,6 +22,7 @@
 
 #include <string>
 #include <algorithm>
+#include <mem/memory.hpp>
 
 class row: public testing::Test {
 protected:

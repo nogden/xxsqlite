@@ -20,7 +20,6 @@
 #include <sqlite3.h>
 
 #include <ostream>
-#include <sstream>
 #include <cassert>
 
 namespace sqlite {

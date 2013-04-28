@@ -17,7 +17,7 @@
 #ifndef SQLITE_FIELD_H
 #define SQLITE_FIELD_H
 
-#include "mem/memory.hpp"
+#include <memory>
 #include <string>
 #include <cstddef>
 
