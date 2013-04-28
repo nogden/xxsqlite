@@ -27,23 +27,17 @@ namespace sqlite {
 
 class error: public std::runtime_error {
 public:
-    error(const int error_code);
+    error(const int error_code, const std::string &msg = std::string());
     error(const std::string &msg);
+    error(
+            const std::shared_ptr<sqlite3_stmt> stmt,
+            const std::string &msg = std::string()
+    );
+
     const int sqlite_error_code() const noexcept { return code; }
 
 private:
     const int code = 0;
-};
-
-class bad_statement: public error {
-public:
-    bad_statement(const std::shared_ptr<sqlite3_stmt> &stmt);
-    bad_statement(const int error_code, const std::string &sql);
-    std::string sql() const noexcept { return sql_statement; }
-    const char* what() const noexcept;
-
-private:
-    std::string sql_statement = "";
 };
 
 } // namespace sqlite

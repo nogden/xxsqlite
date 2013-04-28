@@ -109,7 +109,7 @@ std::shared_ptr<sqlite3_stmt> database::create_statement(
         db, sql.c_str(), sql.size(), &stmt, nullptr
     ));
     if (status != SQLITE_OK)
-        throw bad_statement(status, sql);
+        throw error(status, "while preparing sql statement '" + sql + "'");
     return std::shared_ptr<sqlite3_stmt>(stmt, &sqlite3_finalize);
 }
 

@@ -33,7 +33,7 @@ TEST(database, executes_valid_sql_sucessfully) {
 
 TEST(database, throws_database_error_when_executing_invalid_sql) {
     sqlite::database db(sqlite::in_memory, sqlite::read_write_create);
-    EXPECT_THROW(db.execute("INVALID STATEMENT"), sqlite::bad_statement);
+    EXPECT_THROW(db.execute("INVALID STATEMENT"), sqlite::error);
 }
 
 TEST(database, returns_prepared_statement_when_given_valid_sql) {
@@ -49,7 +49,7 @@ TEST(database, throws_database_error_when_preparing_invalid_sql) {
     sqlite::database db(sqlite::in_memory, sqlite::read_write_create);
     EXPECT_THROW(
         (void) db.prepare_statement("INVALID STATEMENT"),
-        sqlite::bad_statement
+        sqlite::error
     );
 }
 

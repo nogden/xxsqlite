@@ -47,22 +47,15 @@ const int error_code(const std::shared_ptr<sqlite3_stmt> &stmt) {
 
 }
 
-error::error(const int error_code):
-    std::runtime_error(error_message(error_code)), code(error_code) {}
+error::error(const int error_code, const std::string &msg):
+    std::runtime_error(error_message(error_code) + " " + msg),
+    code(error_code) {}
 
 error::error(const std::string &msg): std::runtime_error(msg) {}
 
+error::error(const std::shared_ptr<sqlite3_stmt> stmt, const std::string &msg):
+    std::runtime_error(error_message(stmt) + " " + msg) {}
 
-bad_statement::bad_statement(const std::shared_ptr<sqlite3_stmt> &stmt):
-    error(error_code(stmt)), sql_statement(sqlite3_sql(stmt.get())) {}
 
-bad_statement::bad_statement(const int error_code, const std::string &sql):
-    error(error_code), sql_statement(sql) {}
-
-const char* bad_statement::what() const noexcept {
-    std::stringstream ss;
-    ss << error::what() << " with sql statement '" << sql() << "'";
-    return ss.str().c_str();
-}
 
 } // namespace sqlite

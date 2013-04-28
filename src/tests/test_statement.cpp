@@ -18,8 +18,6 @@
 #include "statement.hpp"
 #include "error.hpp"
 
-#include <sqlite3.h>
-
 #include <gtest/gtest.h>
 
 #include "mem/memory.hpp"
@@ -55,23 +53,23 @@ TEST_F(statement, throws_database_error_when_binding_to_absent_parameter) {
     sqlite::statement statement(db->prepare_statement("SELECT * FROM test;"));
     EXPECT_THROW(
         statement.bind(":param", static_cast<double>(0.0)),
-        sqlite::bad_parameter
+        sqlite::error
     );
     EXPECT_THROW(
         statement.bind(":param", static_cast<int>(0)),
-        sqlite::bad_parameter
+        sqlite::error
     );
     EXPECT_THROW(
         statement.bind(":param", static_cast<int64_t>(0)),
-        sqlite::bad_parameter
+        sqlite::error
     );
     EXPECT_THROW(
         statement.bind(":param", sqlite::null),
-        sqlite::bad_parameter
+        sqlite::error
     );
     EXPECT_THROW(
         statement.bind(":param", "string"),
-        sqlite::bad_parameter
+        sqlite::error
     );
 }
 

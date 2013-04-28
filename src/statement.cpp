@@ -34,34 +34,10 @@ std::size_t find_parameter_index(
     assert(stmt && "bind() called on null sqlite::statement");
     auto index(sqlite3_bind_parameter_index(stmt.get(), parameter.c_str()));
     if (! index)
-        throw bad_parameter(parameter, stmt);
+        throw error(stmt, "while binding parameter '" + parameter + "'");
     return index;
 }
 
-}
-
-bad_parameter::bad_parameter(
-        const std::string &parameter,
-        const std::shared_ptr<sqlite3_stmt> &stmt
-): bad_statement(stmt), param(parameter) {}
-
-const char *bad_parameter::what() const noexcept {
-    std::stringstream ss;
-    ss << "unknown parameter '" << param << "' in sql statement '"
-       << sql() << "'";
-    return ss.str().c_str();
-}
-
-bind_error::bind_error(
-        const std::string &parameter,
-        const std::shared_ptr<sqlite3_stmt> &stmt
-): bad_parameter(parameter, stmt) {}
-
-const char *bind_error::what() const noexcept {
-    std::stringstream ss;
-    ss << error::what() << " while binding parameter '" << parameter()
-       << "' in sql statement '" << sql() << "'";
-    return ss.str().c_str();
 }
 
 statement::statement() {}
@@ -129,7 +105,7 @@ void statement::throw_on_bind_error(
         const std::string &parameter
 ) const {
     if (status != SQLITE_OK)
-        throw bind_error(parameter, stmt);
+        throw error(stmt, "while binding parameter '" + parameter + "'");
 }
 
 std::ostream& operator<<(std::ostream &os, const statement &statement) {

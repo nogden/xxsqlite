@@ -35,31 +35,6 @@ enum class null_t {
 };
 static const null_t null = null_t::null;
 
-class bad_parameter: public bad_statement {
-public:
-    bad_parameter(
-            const std::string &parameter,
-            const std::shared_ptr<sqlite3_stmt> &stmt
-    );
-    std::string parameter() const noexcept { return param; }
-    const char* what() const noexcept;
-
-private:
-    std::string param;
-};
-
-class bind_error: public bad_parameter {
-public:
-    bind_error(
-            const std::string &parameter,
-            const std::shared_ptr<sqlite3_stmt> &stmt
-    );
-    const char* what() const noexcept;
-
-private:
-    std::size_t index;
-};
-
 class statement
 {
 public:
