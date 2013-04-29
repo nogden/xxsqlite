@@ -45,12 +45,9 @@ public:
     statement& operator=(statement &&other) = default;
 
     std::size_t parameter_count() const;
-    void bind(const std::string &parameter, const sqlite::blob &value);
-    void bind(const std::string &parameter, const double &value);
-    void bind(const std::string &parameter, const int &value);
-    void bind(const std::string &parameter, const int64_t &value);
-    void bind(const std::string &parameter, const null_t &value);
-    void bind(const std::string &parameter, const std::string &value);
+    template<typename T>
+    void bind(const std::string &parameter, const T &value);
+    void bind(const std::string &parameter, const char *value);
     void clear_bindings();
 
     friend std::ostream& operator<<(

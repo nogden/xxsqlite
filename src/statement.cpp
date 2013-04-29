@@ -44,35 +44,76 @@ statement::statement(const std::shared_ptr<sqlite3_stmt> &statement):
     assert(statement && "attempt to create statement with null sqlite3_stmt");
 }
 
-void statement::bind(const std::string &parameter, const blob &value) {
+template<>
+void statement::bind<blob>(const std::string &parameter, const blob &value) {
     assert(false && "blob support not implemented");
 }
 
-void statement::bind(const std::string &parameter, const double &value) {
+template<>
+void statement::bind<double>(
+        const std::string &parameter,
+        const double &value
+) {
     auto index(find_parameter_index(parameter, stmt));
-    throw_on_bind_error(sqlite3_bind_double(stmt.get(), index, value), parameter);
+    throw_on_bind_error(
+        sqlite3_bind_double(stmt.get(), index, value),
+        parameter
+    );
 }
 
-void statement::bind(const std::string &parameter, const int &value) {
+template<>
+void statement::bind<int>(const std::string &parameter, const int &value) {
     auto index(find_parameter_index(parameter, stmt));
     throw_on_bind_error(sqlite3_bind_int(stmt.get(), index, value), parameter);
 }
 
-void statement::bind(const std::string &parameter, const int64_t &value) {
+template<>
+void statement::bind<int64_t>(
+        const std::string &parameter,
+        const int64_t &value
+) {
     auto index(find_parameter_index(parameter, stmt));
-    throw_on_bind_error(sqlite3_bind_int64(stmt.get(), index, value), parameter);
+    throw_on_bind_error(
+        sqlite3_bind_int64(stmt.get(), index, value),
+        parameter
+    );
 }
 
-void statement::bind(const std::string &parameter, const null_t &value) {
+template<>
+void statement::bind<bool>(const std::string &parameter, const bool &value) {
+    auto index(find_parameter_index(parameter, stmt));
+    throw_on_bind_error(
+        sqlite3_bind_int(stmt.get(), index, static_cast<int>(value)),
+        parameter
+    );
+}
+
+template<>
+void statement::bind<null_t>(
+        const std::string &parameter,
+        const null_t &value
+) {
     (void) value;
     auto index(find_parameter_index(parameter, stmt));
     throw_on_bind_error(sqlite3_bind_null(stmt.get(), index), parameter);
 }
 
-void statement::bind(const std::string &parameter, const std::string &value) {
+template<>
+void statement::bind<std::string>(
+        const std::string &parameter,
+        const std::string &value
+) {
     auto index(find_parameter_index(parameter, stmt));
     auto status(sqlite3_bind_text(
         stmt.get(), index, value.c_str(), value.size(), SQLITE_STATIC
+    ));
+    throw_on_bind_error(status, parameter);
+}
+
+void statement::bind(const std::string &parameter, const char * value) {
+    auto index(find_parameter_index(parameter, stmt));
+    auto status(sqlite3_bind_text(
+        stmt.get(), index, value, -1, SQLITE_STATIC
     ));
     throw_on_bind_error(status, parameter);
 }

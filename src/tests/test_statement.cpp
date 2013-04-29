@@ -42,35 +42,23 @@ protected:
 
 TEST_F(statement, binds_any_parameter_when_name_is_present_in_sql_string) {
     auto statement(db->prepare_statement("SELECT * FROM test WHERE id = :param;"));
-    EXPECT_NO_THROW(statement.bind(":param", static_cast<double>(0.0)));
-    EXPECT_NO_THROW(statement.bind(":param", static_cast<int>(0)));
-    EXPECT_NO_THROW(statement.bind(":param", static_cast<int64_t>(0)));
+    EXPECT_NO_THROW(statement.bind(":param", double(0.0)));
+    EXPECT_NO_THROW(statement.bind(":param", int(0)));
+    EXPECT_NO_THROW(statement.bind(":param", int64_t(0)));
+    EXPECT_NO_THROW(statement.bind(":param", true));
     EXPECT_NO_THROW(statement.bind(":param", sqlite::null));
     EXPECT_NO_THROW(statement.bind(":param", "string"));
+    EXPECT_NO_THROW(statement.bind(":param", std::string("string")));
 }
 
 TEST_F(statement, throws_database_error_when_binding_to_absent_parameter) {
     sqlite::statement statement(db->prepare_statement("SELECT * FROM test;"));
-    EXPECT_THROW(
-        statement.bind(":param", static_cast<double>(0.0)),
-        sqlite::error
-    );
-    EXPECT_THROW(
-        statement.bind(":param", static_cast<int>(0)),
-        sqlite::error
-    );
-    EXPECT_THROW(
-        statement.bind(":param", static_cast<int64_t>(0)),
-        sqlite::error
-    );
-    EXPECT_THROW(
-        statement.bind(":param", sqlite::null),
-        sqlite::error
-    );
-    EXPECT_THROW(
-        statement.bind(":param", "string"),
-        sqlite::error
-    );
+    EXPECT_THROW(statement.bind(":param", double(0.0)), sqlite::error);
+    EXPECT_THROW(statement.bind(":param", int(0)), sqlite::error);
+    EXPECT_THROW(statement.bind(":param", int64_t(0)), sqlite::error);
+    EXPECT_THROW(statement.bind(":param", sqlite::null), sqlite::error);
+    EXPECT_THROW(statement.bind(":param", "string"), sqlite::error);
+    EXPECT_THROW(statement.bind(":param", std::string("string")), sqlite::error);
 }
 
 TEST_F(statement, can_count_its_parameters) {
