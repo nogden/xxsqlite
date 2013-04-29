@@ -36,6 +36,8 @@ protected:
         (void) db->execute("INSERT INTO test (id, name) VALUES (1, 'test');");
         (void) db->execute("INSERT INTO test (id, name) VALUES (2, 'sqlite');");
         (void) db->execute("INSERT INTO test (id, name) VALUES (3, 'row');");
+        (void) db->execute("INSERT INTO test (id, name) VALUES (4, 1.5);");
+        (void) db->execute("INSERT INTO test (id) VALUES (5);");
     }
 
     sqlite::row make_row(const std::string &sql) {
@@ -53,15 +55,38 @@ TEST_F(field, knows_the_name_of_its_source_column) {
 }
 
 TEST_F(field, can_be_tested_for_null) {
-    (void) db->execute("INSERT INTO test (id) VALUES (4);");
-    sqlite::row row(make_row("SELECT * FROM test WHERE id = 4;"));
+    sqlite::row row(make_row("SELECT * FROM test WHERE id = 5;"));
     EXPECT_TRUE(row["name"].is_null());
     EXPECT_FALSE(row["id"].is_null());
 }
 
 TEST_F(field, supports_cxx11_explicit_bool_syntax) {
-    (void) db->execute("INSERT INTO test (id) VALUES (4);");
-    sqlite::row row(make_row("SELECT * FROM test WHERE id = 4;"));
+    sqlite::row row(make_row("SELECT * FROM test WHERE id = 5;"));
     EXPECT_TRUE(bool(row["id"]));
     EXPECT_FALSE(bool(row["name"]));
+}
+
+TEST_F(field, returns_the_numeric_value_for_any_numeric_type_if_numeric) {
+    sqlite::row row(make_row("SELECT * FROM test WHERE id = 4;"));
+    EXPECT_EQ(double(1.5), row["name"].as<double>());
+    EXPECT_EQ(int(1), row["name"].as<int>());
+    EXPECT_EQ(int64_t(1), row["name"].as<int64_t>());
+    EXPECT_EQ(true, row["name"].as<bool>());
+}
+
+TEST_F(field, returns_the_default_value_for_any_numeric_type_if_not_numeric) {
+    sqlite::row row(make_row("SELECT * FROM test WHERE id = 1;"));
+    EXPECT_EQ(double(0.0), row["name"].as<double>());
+    EXPECT_EQ(int(0), row["name"].as<int>());
+    EXPECT_EQ(int64_t(0), row["name"].as<int64_t>());
+    EXPECT_EQ(false, row["name"].as<bool>());
+}
+
+TEST_F(field, returns_as_much_of_the_text_as_can_be_held_for_textual_types) {
+    sqlite::row row(make_row("SELECT * FROM test WHERE id = 1;"));
+    EXPECT_EQ('t', row["name"].as<char>());
+    EXPECT_EQ(std::string("test"), row["name"].as<std::string>());
+    row = make_row("SELECT * FROM test WHERE id = 4;");
+    EXPECT_EQ('1', row["name"].as<char>());
+    EXPECT_EQ(std::string("1.5"), row["name"].as<std::string>());
 }

@@ -65,10 +65,24 @@ int field::as<int>() const {
 }
 
 template<>
+bool field::as<bool>() const {
+    if (is_null())
+        return false;
+    return static_cast<bool>(sqlite3_column_int(stmt.get(), index));
+}
+
+template<>
 int64_t field::as<int64_t>() const {
     if (is_null())
         return 0;
     return sqlite3_column_int64(stmt.get(), index);
+}
+
+template<>
+char field::as<char>() const {
+    if (is_null())
+        return '\0';
+    return *reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), index));
 }
 
 template<>
