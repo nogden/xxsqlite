@@ -9,19 +9,37 @@ Contributions and issue reports welcome!
 Examples
 --------
 ### Basic usage
-
-
-### Prepared statements
-
-
-### Simple scalar queries
-
-
-### Stl compatible iterators
-
+    sqlite::database db("company.db", sqlite::read_write_create);
+    db.execute(
+        "CREATE TABLE employee ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "name TEXT NOT NULL,"
+            "role INTEGER NOT NULL"
+        ");"
+    );
 
 ### Transactions
+    sqlite::as_transaction(db, [](sqlite::database &db) {
+        db.execute("INSERT INTO employee (name, role) VALUES ('J. Smith', 1);");
+        db.execute("INSERT INTO employee (name, role) VALUES ('A. Jones', 2);");
+        db.execute("INSERT INTO employee (name, role) VALUES ('F. Bar', 2);");
+    });
 
+### Simple scalar queries
+    Comming soon!
+
+### Prepared statements
+    sqlite::statement stmt(
+        db.prepare_statement("SELECT * FROM employee WHERE role = :role;")
+    );
+    stmt.bind(":role", 2);
+    sqlite::result results(db.execute(stmt));
+
+### Stl compatible iterators
+    for (const sqlite::row &row : results) {
+        std::cout << row["name"].as<std::string>() << ": "
+                  << row["role"].as<int>() << std::endl;
+    }
 
 ++sqlite...
 -----------
