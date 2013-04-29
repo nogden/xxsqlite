@@ -23,7 +23,8 @@ Examples
 ### Transactions
 
 
-### ++sqlite...
+++sqlite...
+-----------
  * uses the latest C++11 techniques to ensure high performance, readable code.
  * is entirely stack based, making it extremely lightweight.
  * has a comprehensive set of unit tests to ensure its quality.
