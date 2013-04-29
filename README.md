@@ -1,42 +1,43 @@
 ++sqlite
---------
+========
 
 ++sqlite is thin C++ wrapper around the sqlite3 database library with a focus on
 using the C++11 feature set.
 
 Contributions and issue reports welcome!
 
-Basic Example
+Examples
+--------
+### Basic usage
 
 
-Prepared statements
+### Prepared statements
 
 
-Simple scalar queries
+### Simple scalar queries
 
 
-Stl compatible iterators
+### Stl compatible iterators
 
 
-Transactions
+### Transactions
 
 
-
-++sqlite...
-...uses the latest C++11 techniques to ensure high performance, readable code.
-...is entirely stack based, making it extremely lightweight.
-...has a comprehensive set of unit tests to ensure its quality.
-...is released under the Apache 2.0 license allowing use in both proprietary and
+### ++sqlite...
+ * uses the latest C++11 techniques to ensure high performance, readable code.
+ * is entirely stack based, making it extremely lightweight.
+ * has a comprehensive set of unit tests to ensure its quality.
+ * is released under the Apache 2.0 license allowing use in both proprietary and
    open-source software.
 
-Runtime dependencies
+### Runtime dependencies
  * sqlite 3 (tested with version 3.7)
 
-Build dependencies
+### Build dependencies
  * cmake 2.6 or later
  * A C++11 compatible compiler (tested with gcc-4.8 and clang-3.2)
 
-Platform support
+### Platform support
  * Linux    (reference platform)
  * Mac Os X (unconfirmed)
  * Windows  (unconfirmed)
@@ -45,8 +46,8 @@ Platform support
  * If you are able to confirm that the library builds and all unit tests pass on
    any platform, please get in touch.
 
-Build instructions
- 1. git clone https://github.com/nogden/xxsqlite.git
+### Build instructions
+ 1. git clone git://github.com/nogden/xxsqlite.git
  2. cd xxsqlite
  3. mkdir build
  4. cd build
