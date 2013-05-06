@@ -67,16 +67,20 @@ public:
     database& operator=(const database &other) = delete;
     database& operator=(database &&other) = default;
 
+    statement prepare_statement(const std::string &sql) const;
+
     result execute(const std::string &sql);
     result execute(const statement &statement);
-    template<typename T> T execute_scalar(const std::string &sql) {
-        return (*execute(sql).begin())[0].as<T>();
+    template<typename T> T execute_scalar(const std::string &sql) const {
+        result results(create_statement(sql));
+        return (*results.begin())[0].as<T>();
     }
-    template<typename T> T execute_scalar(const statement & statement) {
-        return (*execute(statement).begin())[0].as<T>();
+    template<typename T> T execute_scalar(const statement &statement) const {
+        result results(make_result(statement));
+        return (*results.begin())[0].as<T>();
     }
 
-    statement prepare_statement(const std::string &sql) const;
+    std::size_t size() const;
 
     friend std::ostream& operator<<(std::ostream &stream, const database &db);
 

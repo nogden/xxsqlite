@@ -91,6 +91,12 @@ result database::execute(const statement &statement) {
     return make_result(statement);
 }
 
+std::size_t database::size() const {
+    std::size_t page_count(execute_scalar<std::size_t>("PRAGMA page_count;"));
+    std::size_t page_size(execute_scalar<std::size_t>("PRAGMA page_size;"));
+    return page_count * page_size;
+}
+
 void database::close() {
     auto status(sqlite3_close(db));
     db = nullptr;

@@ -89,3 +89,12 @@ TEST(database, can_execute_scalar_queries_returning_the_result_immediately) {
     ));
     EXPECT_EQ(1, db.execute_scalar<int>(statement));
 }
+
+TEST(database, can_report_its_size) {
+    sqlite::database db(sqlite::in_memory, sqlite::read_write_create);
+    (void) db.execute("CREATE TABLE test (id INTEGER, value TEXT);");
+    (void) db.execute("INSERT INTO test (id, value) VALUES (1, '');");
+    std::size_t page_size(db.execute_scalar<std::size_t>("PRAGMA page_size;"));
+    std::size_t page_count(db.execute_scalar<std::size_t>("PRAGMA page_count;"));
+    EXPECT_EQ(page_size * page_count, db.size());
+}

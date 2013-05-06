@@ -79,6 +79,13 @@ int64_t field::as<int64_t>() const {
 }
 
 template<>
+std::size_t field::as<std::size_t>() const {
+    if (is_null())
+        return 0;
+    return sqlite3_column_int64(stmt.get(), index);
+}
+
+template<>
 char field::as<char>() const {
     if (is_null())
         return '\0';
