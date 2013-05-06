@@ -80,6 +80,18 @@ void statement::bind<int64_t>(
 }
 
 template<>
+void statement::bind<std::size_t>(
+        const std::string &parameter,
+        const std::size_t &value
+) {
+    auto index(find_parameter_index(parameter, stmt));
+    throw_on_bind_error(
+        sqlite3_bind_int64(stmt.get(), index, value),
+        parameter
+    );
+}
+
+template<>
 void statement::bind<bool>(const std::string &parameter, const bool &value) {
     auto index(find_parameter_index(parameter, stmt));
     throw_on_bind_error(

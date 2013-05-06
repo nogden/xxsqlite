@@ -97,7 +97,7 @@ std::size_t database::size() const {
     return page_count * page_size;
 }
 
-void database::close() {
+void database::close() noexcept {
     auto status(sqlite3_close(db));
     db = nullptr;
     // Can't throw, called from destructor

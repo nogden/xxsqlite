@@ -85,7 +85,7 @@ public:
     friend std::ostream& operator<<(std::ostream &stream, const database &db);
 
 private:
-    void close();
+    void close() noexcept;
     std::shared_ptr<sqlite3_stmt> create_statement(const std::string &sql) const;
 
 private:
