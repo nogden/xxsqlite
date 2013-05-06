@@ -20,9 +20,6 @@
 
 #include <gtest/gtest.h>
 
-#include "mem/memory.hpp"
-#include <thread>
-
 TEST(database, executes_valid_sql_sucessfully) {
     sqlite::database db(sqlite::in_memory, sqlite::read_write_create);
     EXPECT_NO_THROW({
@@ -80,4 +77,15 @@ TEST(database, throws_if_an_external_modification_occurs_during_a_transaction) {
             (void) db.execute("UPDATE test SET value = 'one' WHERE id = 1;");
         }), sqlite::transaction_failed
     );
+}
+
+TEST(database, can_execute_scalar_queries_returning_the_result_immediately) {
+    sqlite::database db(sqlite::in_memory, sqlite::read_write_create);
+    (void) db.execute("CREATE TABLE test (id INTEGER, value TEXT);");
+    (void) db.execute("INSERT INTO test (id, value) VALUES (1, '');");
+    EXPECT_EQ(1, db.execute_scalar<int>("SELECT id FROM test;"));
+    sqlite::statement statement(db.prepare_statement(
+        "SELECT count(id) FROM test;"
+    ));
+    EXPECT_EQ(1, db.execute_scalar<int>(statement));
 }

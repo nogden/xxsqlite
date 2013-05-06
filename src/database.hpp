@@ -69,6 +69,12 @@ public:
 
     result execute(const std::string &sql);
     result execute(const statement &statement);
+    template<typename T> T execute_scalar(const std::string &sql) {
+        return (*execute(sql).begin())[0].as<T>();
+    }
+    template<typename T> T execute_scalar(const statement & statement) {
+        return (*execute(statement).begin())[0].as<T>();
+    }
 
     statement prepare_statement(const std::string &sql) const;
 

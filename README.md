@@ -26,7 +26,9 @@ Examples
     });
 
 ### Simple scalar queries
-    Comming soon!
+    std::size_t record_count(db.execute_scalar<std::size_t>(
+        "SELECT count(name) FROM employee;"
+    );
 
 ### Prepared statements
     sqlite::statement stmt(
