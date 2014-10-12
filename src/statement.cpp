@@ -31,6 +31,7 @@ std::size_t find_parameter_index(
         const std::shared_ptr<sqlite3_stmt> &stmt
 ) {
     assert(stmt && "bind() called on null sqlite::statement");
+    sqlite3_reset(stmt.get());
     auto index(sqlite3_bind_parameter_index(stmt.get(), parameter.c_str()));
     if (! index)
         throw error(stmt, "while binding parameter '" + parameter + "'");

@@ -34,7 +34,11 @@ protected:
             "    name TEXT"
             ");"
         );
-        (void) db->execute("INSERT INTO test (id, name) VALUES (1, 'test');");
+        for (int i(0); i < 5; ++i) {
+            std::stringstream ss;
+            ss << "INSERT INTO test (id, name) VALUES (" << i << ", 'test" << i << "');";
+            (void) db->execute(ss.str());
+        }
     }
 
     std::unique_ptr<sqlite::database> db;
@@ -68,4 +72,16 @@ TEST_F(statement, can_count_its_parameters) {
         "SELECT * FROM test WHERE id = :id AND name = :name;"
     );
     EXPECT_EQ(2, statement.parameter_count());
+}
+
+TEST_F(statement, can_be_executed_with_more_than_one_bind_sets) {
+    auto statement(db->prepare_statement("SELECT * FROM test WHERE id = :id;"));
+    for (int i(0); i < 5; ++i) {
+        statement.bind(":id", i);
+        auto result(db->execute(statement));
+        sqlite::row row(*std::begin(result));
+        std::stringstream expected;
+        expected << "test" << i;
+        EXPECT_EQ(row["name"].as<std::string>(), expected.str());
+    }
 }
