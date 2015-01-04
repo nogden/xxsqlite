@@ -57,6 +57,7 @@ Examples
 ### Build dependencies
  * cmake 2.6 or later
  * A C++11 compatible compiler (tested with gcc-4.8 and clang-3.2)
+ * Google Test (gtest) for building the unit tests
 
 ### Platform support
  * Linux    (reference platform)
