@@ -21,12 +21,9 @@
 #include "result.hpp"
 
 #include <memory>
+#include <functional>
 
 struct sqlite3;
-
-namespace std {
-    template<class T> class function;
-}   // namespace std
 
 namespace sqlite {
 
