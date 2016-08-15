@@ -1,26 +1,22 @@
 # Builds the sqlite wrapper library
 
-set(SQLITE_SOURCE_FILES
-    database.hpp
+set(XXSQLITE_SOURCE_FILES
     database.cpp
-    error.hpp
     error.cpp
-    field.hpp
     field.cpp
-    result.hpp
     result.cpp
-    row.hpp
     row.cpp
-    statement.hpp
     statement.cpp
 )
 
-add_library(sqlite STATIC
-    ${SQLITE_SOURCE_FILES}
+add_library(++sqlite STATIC
+    ${XXSQLITE_SOURCE_FILES}
 )
 
-target_link_libraries(sqlite
-    sqlite3
+include_directories(${SQLITE_INCLUDE_DIRS})
+
+target_link_libraries(++sqlite
+    ${SQLITE_LIBRARIES}
 )
 
 if(BUILD_UNIT_TESTS)
